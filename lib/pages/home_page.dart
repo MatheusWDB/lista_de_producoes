@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:todo_list_2/widgets/list_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -70,30 +69,44 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: ListView.builder(
                   itemCount: _toDoList.length,
-                  itemBuilder: (context, index) {
-                    return CheckboxListTile(
-                      title: Text(_toDoList[index]['title']),
-                      value: _toDoList[index]['ok'],
-                      secondary: CircleAvatar(
-                        child: Icon(
-                          _toDoList[index]['ok']
-                              ? Icons.task_alt
-                              : Icons.pending_outlined,
-                        ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _toDoList[index]['ok'] = value;
-                          _saveData();
-                        });
-                      },
-                    );
-                  },
+                  itemBuilder: buildItem,
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildItem(context, index) {
+    return Dismissible(
+      key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment(-0.9, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      direction: DismissDirection.startToEnd,
+      child: CheckboxListTile(
+        title: Text(_toDoList[index]['title']),
+        value: _toDoList[index]['ok'],
+        secondary: CircleAvatar(
+          child: Icon(
+            _toDoList[index]['ok'] ? Icons.task_alt : Icons.pending_outlined,
+          ),
+        ),
+        onChanged: (value) {
+          setState(() {
+            _toDoList[index]['ok'] = value;
+            _saveData();
+          });
+        },
       ),
     );
   }
