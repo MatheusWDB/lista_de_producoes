@@ -18,7 +18,44 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(),
+        appBar: AppBar(
+          title: Text('Lista de Tarefa'),
+          backgroundColor: Colors.blueAccent,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 25.0,
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Nova Tarefa',
+                        labelStyle: TextStyle(
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      iconColor: Colors.white,
+                    ),
+                    child: Icon(Icons.add),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
