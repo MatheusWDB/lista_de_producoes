@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:todo_list_2/widgets/list_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _toDoController = TextEditingController();
+
   List _toDoList = [];
 
   @override
@@ -35,6 +38,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _toDoController,
                       decoration: InputDecoration(
                         labelText: 'Nova Tarefa',
                         labelStyle: TextStyle(
@@ -44,7 +48,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _addToDo,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       iconColor: Colors.white,
@@ -53,11 +57,44 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _toDoList.length,
+                  itemBuilder: (context, index) {
+                    return CheckboxListTile(
+                      title: Text(_toDoList[index]['title']),
+                      value: _toDoList[index]['ok'],
+                      secondary: CircleAvatar(
+                        child: Icon(
+                          _toDoList[index]['ok']
+                              ? Icons.task_alt
+                              : Icons.pending_outlined,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _toDoList[index]['ok'] = value;
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _addToDo() {
+    setState(() {
+      Map<String, dynamic> newToDo = {};
+      newToDo['title'] = _toDoController.text;
+      _toDoController.clear();
+      newToDo['ok'] = false;
+      _toDoList.add(newToDo);
+    });
   }
 
   Future<File> _getFile() async {
