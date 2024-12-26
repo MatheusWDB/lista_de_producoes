@@ -18,6 +18,16 @@ class _HomePageState extends State<HomePage> {
   List _toDoList = [];
 
   @override
+  void initState() {
+    super.initState();
+    _readData().then((data) {
+      setState(() {
+        _toDoList = json.decode(data!);
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -74,6 +84,7 @@ class _HomePageState extends State<HomePage> {
                       onChanged: (value) {
                         setState(() {
                           _toDoList[index]['ok'] = value;
+                          _saveData();
                         });
                       },
                     );
@@ -94,6 +105,7 @@ class _HomePageState extends State<HomePage> {
       _toDoController.clear();
       newToDo['ok'] = false;
       _toDoList.add(newToDo);
+      _saveData();
     });
   }
 
