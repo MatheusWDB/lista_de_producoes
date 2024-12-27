@@ -1,63 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:intl/intl.dart';
 
-class ListItem extends StatelessWidget {
-  const ListItem({
+class TaskItem extends StatelessWidget {
+  final Map<String, dynamic> task;
+  final int index;
+  final Function(bool?) onChanged;
+  final VoidCallback onDismissed;
+
+  const TaskItem({
     super.key,
-    required this.todo,
-    required this.onDelete,
+    required this.task,
+    required this.index,
+    required this.onChanged,
+    required this.onDismissed,
   });
-
-  final String todo;
-  final Function onDelete;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Slidable(
-        endActionPane: ActionPane(
-          extentRatio: 0.25,
-          motion: const BehindMotion(),
-          // All actions are defined in the children parameter.
-          children: [
-            // A SlidableAction can have an icon and/or a label.
-            SlidableAction(
-              onPressed: (context) {
-                onDelete(todo);
-              },
-              backgroundColor: const Color(0xFFFE4A49),
-              foregroundColor: const Color(0xFFFFFFFF),
-              icon: Icons.delete,
-              label: 'Delete',
-              borderRadius:
-                  const BorderRadius.horizontal(right: Radius.circular(10)),
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey[200],
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                DateFormat('dd/MM/yyyy - HH:mm').format(DateTime.now()),
-                style: const TextStyle(fontSize: 12),
-              ),
-              Text(
-                '',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ],
+    return Dismissible(
+      key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: const Alignment(-0.9, 0.0),
+          child: const Icon(
+            Icons.delete,
+            color: Colors.white,
           ),
         ),
       ),
+      direction: DismissDirection.startToEnd,
+      child: CheckboxListTile(
+        title: Text(task['title']),
+        value: task['ok'],
+        secondary: CircleAvatar(
+          child: Icon(
+            task['ok'] ? Icons.task_alt : Icons.pending_outlined,
+          ),
+        ),
+        onChanged: onChanged,
+      ),
+      onDismissed: (direction) => onDismissed(),
     );
   }
 }

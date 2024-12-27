@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:todo_list_2/widgets/list_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Lista de Tarefa'),
+          title: Text('Lista de Programas'),
           backgroundColor: Colors.blueAccent,
           centerTitle: true,
           titleTextStyle: TextStyle(
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                     child: TextField(
                       controller: _toDoController,
                       decoration: InputDecoration(
-                        labelText: 'Nova Tarefa',
+                        labelText: 'Novo Título...',
                         labelStyle: TextStyle(
                           color: Colors.blueAccent,
                         ),
@@ -74,7 +75,19 @@ class _HomePageState extends State<HomePage> {
                   onRefresh: _refresh,
                   child: ListView.builder(
                     itemCount: _toDoList.length,
-                    itemBuilder: buildItem,
+                    itemBuilder: (context, index) {
+                      return TaskItem(
+                        task: _toDoList[index],
+                        index: index,
+                        onChanged: (value) {
+                          setState(() {
+                            _toDoList[index]['ok'] = value;
+                            _saveData();
+                          });
+                        },
+                        onDismissed: () => _handleDismiss(context, index),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -85,58 +98,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildItem(BuildContext context, int index) {
-    return Dismissible(
-      key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
-      background: Container(
-        color: Colors.red,
-        child: Align(
-          alignment: Alignment(-0.9, 0.0),
-          child: Icon(
-            Icons.delete,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      direction: DismissDirection.startToEnd,
-      child: CheckboxListTile(
-        title: Text(_toDoList[index]['title']),
-        value: _toDoList[index]['ok'],
-        secondary: CircleAvatar(
-          child: Icon(
-            _toDoList[index]['ok'] ? Icons.task_alt : Icons.pending_outlined,
-          ),
-        ),
-        onChanged: (value) {
-          setState(() {
-            _toDoList[index]['ok'] = value;
-            _saveData();
-          });
-        },
-      ),
-      onDismissed: (direction) {
-        _itemRemoved = Map.from(_toDoList[index]);
-        _itemRemovedIndex = index;
-        _toDoList.removeAt(index);
-        _saveData();
+  void _handleDismiss(BuildContext context, int index) {
+    setState(() {
+      _itemRemoved = Map.from(_toDoList[index]);
+      _itemRemovedIndex = index;
+      _toDoList.removeAt(index);
+      _saveData();
 
-        final snack = SnackBar(
-          content: Text('Tarefa "${_itemRemoved!['title']}" removida!'),
-          action: SnackBarAction(
-            label: 'Desfazer!',
-            onPressed: () {
-              setState(() {
-                _toDoList.insert(_itemRemovedIndex!, _itemRemoved);
-                _saveData();
-              });
-            },
-          ),
-          duration: Duration(seconds: 5),
-        );
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(snack);
-      },
-    );
+      final snack = SnackBar(
+        content: Text('Título "${_itemRemoved!['title']}" removido!'),
+        action: SnackBarAction(
+          label: 'Desfazer!',
+          onPressed: () {
+            setState(() {
+              _toDoList.insert(_itemRemovedIndex!, _itemRemoved);
+              _saveData();
+            });
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      );
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(snack);
+    });
   }
 
   void _addToDo() {

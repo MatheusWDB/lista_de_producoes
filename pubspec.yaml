@@ -38,6 +38,15 @@ dependencies:
   intl: 
   flutter_slidable: ^3.1.2
   shared_preferences: ^2.3.4
+  flutter_launcher_icons: ^0.14.2
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/tv.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  adaptive_icon_background: "#FFFFFF"  # Use um código de cor hexadecimal para a cor de fundo
+  adaptive_icon_foreground: "assets/icon/tv.png" #"assets/icon/adaptive_foreground.png"
 
 dev_dependencies:
   flutter_test:
