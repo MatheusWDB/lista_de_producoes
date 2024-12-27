@@ -16,6 +16,9 @@ class _HomePageState extends State<HomePage> {
 
   List _toDoList = [];
 
+  Map<String, dynamic>? _itemRemoved;
+  int? _itemRemovedIndex;
+
   @override
   void initState() {
     super.initState();
@@ -79,7 +82,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildItem(context, index) {
+  Widget buildItem(BuildContext context, int index) {
     return Dismissible(
       key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
       background: Container(
@@ -108,6 +111,27 @@ class _HomePageState extends State<HomePage> {
           });
         },
       ),
+      onDismissed: (direction) {
+        _itemRemoved = Map.from(_toDoList[index]);
+        _itemRemovedIndex = index;
+        _toDoList.removeAt(index);
+        _saveData();
+
+        final snack = SnackBar(
+          content: Text('Tarefa "${_itemRemoved!['title']}" removida!'),
+          action: SnackBarAction(
+            label: 'Desfazer!',
+            onPressed: () {
+              setState(() {
+                _toDoList.insert(_itemRemovedIndex!, _itemRemoved);
+                _saveData();
+              });
+            },
+          ),
+          duration: Duration(seconds: 5),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snack);
+      },
     );
   }
 
