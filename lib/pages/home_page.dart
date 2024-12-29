@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:todo_list_2/widgets/list_item.dart';
+import 'package:todo_list_2/models/todo.dart';
+import 'package:todo_list_2/widgets/task_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,17 +16,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _toDoController = TextEditingController();
 
-  List _toDoList = [];
+  List<Todo> _toDoList = [];
 
-  Map<String, dynamic>? _itemRemoved;
-  int? _itemRemovedIndex;
+  Todo? _deletedTodo;
+  int? _deletedTodoIndex;
+  String? error;
 
   @override
   void initState() {
     super.initState();
     _readData().then((data) {
       setState(() {
-        _toDoList = json.decode(data!);
+        if (data != null) {
+          // Decodifica a string JSON e converte para List<Todo>
+          List<dynamic> jsonData = json.decode(data);
+          _toDoList = jsonData.map((item) => Todo.fromJson(item)).toList();
+        }
       });
     });
   }
@@ -46,6 +52,7 @@ class _HomePageState extends State<HomePage> {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            spacing: 8,
             children: [
               Row(
                 children: [
@@ -54,6 +61,7 @@ class _HomePageState extends State<HomePage> {
                       controller: _toDoController,
                       decoration: InputDecoration(
                         labelText: 'Novo Título...',
+                        errorText: error,
                         labelStyle: TextStyle(
                           color: Colors.blueAccent,
                         ),
@@ -70,26 +78,51 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Expanded(
+              Flexible(
                 child: RefreshIndicator(
                   onRefresh: _refresh,
-                  child: ListView.builder(
-                    itemCount: _toDoList.length,
-                    itemBuilder: (context, index) {
-                      return TaskItem(
-                        task: _toDoList[index],
-                        index: index,
-                        onChanged: (value) {
-                          setState(() {
-                            _toDoList[index]['ok'] = value;
-                            _saveData();
-                          });
-                        },
-                        onDismissed: () => _handleDismiss(context, index),
-                      );
-                    },
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (Todo todo in _toDoList)
+                        TaskItem(
+                          task: todo,
+                          onChanged: (value) {
+                            setState(() {
+                              todo.ok = value!;
+                              _saveData();
+                            });
+                          },
+                          onDelete: onDelete,
+                        ),
+                    ],
                   ),
                 ),
+              ),
+              Row(
+                spacing: 8.0,
+                children: [
+                  Expanded(
+                    child: Text(
+                        'Você possui ${_toDoList.length} tarefas pendentes'),
+                  ),
+                  ElevatedButton(
+                    onPressed: showDeleteTodosConfirmationDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff00b7f3),
+                      padding: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Limpar Tudo',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ],
           ),
@@ -98,39 +131,156 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _handleDismiss(BuildContext context, int index) {
-    setState(() {
-      _itemRemoved = Map.from(_toDoList[index]);
-      _itemRemovedIndex = index;
-      _toDoList.removeAt(index);
-      _saveData();
+  void onDelete(Todo todo) {
+    _deletedTodo = todo;
+    _deletedTodoIndex = _toDoList.indexOf(todo);
 
-      final snack = SnackBar(
-        content: Text('Título "${_itemRemoved!['title']}" removido!'),
+    setState(() {
+      _toDoList.remove(todo);
+      _saveData();
+    });
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'A Tarefa "${todo.title}" foi removida com sucesso!',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
         action: SnackBarAction(
-          label: 'Desfazer!',
+          label: 'Desfazer',
           onPressed: () {
             setState(() {
-              _toDoList.insert(_itemRemovedIndex!, _itemRemoved);
-              _saveData();
+              _toDoList.insert(_deletedTodoIndex!, _deletedTodo!);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Ação desfeita!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  backgroundColor: Colors.white,
+                  duration: Duration(seconds: 2),
+                ),
+              );
             });
+            _saveData();
           },
+          textColor: const Color(0xff00b7f3),
         ),
         duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  void showDeleteTodosConfirmationDialog() {
+    if (_toDoList.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text(
+            'Limpar Tudo?',
+          ),
+          content: const Text(
+            'Tem certeza que deseja pagar todas as tarefas?',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xff00b7f3)),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                deleteAllTodos();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text(
+                'Limpar Tudo',
+              ),
+            ),
+          ],
+        ),
       );
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(snack);
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text(
+            'Limpar Tudo?',
+          ),
+          content: const Text(
+            'Você não possui tarefas!',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xff00b7f3)),
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void deleteAllTodos() {
+    setState(() {
+      _toDoList.clear();
+      _saveData();
     });
   }
 
   void _addToDo() {
+    if (_toDoController.text.isEmpty) {
+      setState(() {
+        error = 'Preencha o campo';
+      });
+      return;
+    }
+
+    Todo newToDo = Todo(
+        title: _toDoController.text, ok: false, date: DateTime.now().toLocal());
+
     setState(() {
-      Map<String, dynamic> newToDo = {};
-      newToDo['title'] = _toDoController.text;
-      _toDoController.clear();
-      newToDo['ok'] = false;
       _toDoList.add(newToDo);
-      _saveData();
+      error = null;
+    });
+
+    organize();
+    _saveData();
+    _toDoController.clear();
+  }
+
+  void organize() {
+    _toDoList.sort((a, b) {
+      if (a.ok && !b.ok) {
+        return 1;
+      } else if (!a.ok && b.ok) {
+        return -1;
+      } else {
+        return a.title.toString().compareTo(b.title.toString());
+      }
     });
   }
 
@@ -158,16 +308,7 @@ class _HomePageState extends State<HomePage> {
     await Future.delayed(Duration(seconds: 1));
 
     setState(() {
-      _toDoList.sort((a, b) {
-        if (a['ok'] && !b['ok']) {
-          return 1;
-        } else if (!a['ok'] && b['ok']) {
-          return -1;
-        } else {
-          return a['title'].toString().compareTo(b['title'].toString());
-        }
-      });
-
+      organize();
       _saveData();
     });
 
