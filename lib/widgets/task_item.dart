@@ -41,6 +41,10 @@ class TaskItem extends StatelessWidget {
         child: CheckboxListTile(
           title: Text(
             task.title,
+            style: const TextStyle(fontSize: 16),
+          ),
+          subtitle: Text(
+            task.description,
             style: const TextStyle(fontSize: 12),
           ),
           value: task.ok,

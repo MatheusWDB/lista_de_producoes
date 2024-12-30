@@ -14,13 +14,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _toDoController = TextEditingController();
+  final Map<String, TextEditingController> _toDoController = {
+    'title': TextEditingController(),
+    'description': TextEditingController()
+  };
 
   List<Todo> _toDoList = [];
 
   Todo? _deletedTodo;
   int? _deletedTodoIndex;
-  String? error;
+  Map<String, String?> error = {'title': null, 'description': null};
 
   @override
   void initState() {
@@ -50,66 +53,64 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
-            spacing: 8,
+            spacing: 12.0,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _toDoController,
-                      decoration: InputDecoration(
-                        labelText: 'Novo Título...',
-                        errorText: error,
-                        labelStyle: TextStyle(
-                          color: Colors.blueAccent,
-                        ),
-                      ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.blueAccent,
+                      width: 0.5,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (Todo todo in _toDoList)
+                          TaskItem(
+                            task: todo,
+                            onChanged: (value) {
+                              setState(() {
+                                todo.ok = value!;
+                                _saveData();
+                              });
+                            },
+                            onDelete: onDelete,
+                          ),
+                      ],
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: _addToDo,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  child: ElevatedButton(
+                    onPressed: showAddTodosDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       iconColor: Colors.white,
                     ),
-                    child: Icon(Icons.add),
-                  ),
-                ],
-              ),
-              Flexible(
-                child: RefreshIndicator(
-                  onRefresh: _refresh,
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      for (Todo todo in _toDoList)
-                        TaskItem(
-                          task: todo,
-                          onChanged: (value) {
-                            setState(() {
-                              todo.ok = value!;
-                              _saveData();
-                            });
-                          },
-                          onDelete: onDelete,
-                        ),
-                    ],
+                    child: Text(
+                      'Novo Título...',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
                   ),
                 ),
               ),
               Row(
-                spacing: 8.0,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Expanded(
-                    child: Text(
-                        'Você possui ${_toDoList.length} tarefas pendentes'),
-                  ),
+                  Text('Você possui ${_toDoList.length} títulos pendentes'),
                   ElevatedButton(
                     onPressed: showDeleteTodosConfirmationDialog,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff00b7f3),
+                      backgroundColor: Colors.redAccent,
                       padding: const EdgeInsets.all(16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0),
@@ -175,10 +176,96 @@ class _HomePageState extends State<HomePage> {
             });
             _saveData();
           },
-          textColor: const Color(0xff00b7f3),
+          textColor: Colors.blueAccent,
         ),
         duration: const Duration(seconds: 5),
       ),
+    );
+  }
+
+  void showAddTodosDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('Novo Título...'),
+            titleTextStyle: TextStyle(color: Colors.blueAccent, fontSize: 28),
+            content: Column(
+              spacing: 8.0,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _toDoController['title'],
+                  cursorColor: Colors.blueAccent,
+                  decoration: InputDecoration(
+                    labelText: 'Título',
+                    errorText: error['title'],
+                    labelStyle: TextStyle(
+                      color: Colors.blueAccent,
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.blueAccent,
+                      ), // Cor quando está focado
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setDialogState(() {
+                      error['title'] = null; // Remove o erro ao digitar
+                    });
+                  },
+                ),
+                TextField(
+                  controller: _toDoController['description'],
+                  cursorColor: Colors.blueAccent,
+                  decoration: InputDecoration(
+                    labelText: 'Descrição',
+                    errorText: error['description'],
+                    labelStyle: TextStyle(
+                      color: Colors.blueAccent,
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.blueAccent,
+                      ), // Cor quando está focado
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _toDoController['title']!.clear();
+                  _toDoController['description']!.clear();
+                  error['title'] = null;
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blueAccent,
+                ),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (_toDoController['title']!.text.isEmpty) {
+                    setDialogState(() {
+                      error['title'] = 'Campo obrigatório!';
+                    });
+                    return;
+                  }
+                  _addToDo();
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blueAccent,
+                ),
+                child: const Text('Adicionar'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -191,16 +278,15 @@ class _HomePageState extends State<HomePage> {
             'Limpar Tudo?',
           ),
           content: const Text(
-            'Tem certeza que deseja pagar todas as tarefas?',
-            textAlign: TextAlign.center,
+            'Tem certeza que deseja pagar todas os títulos?',
+            textAlign: TextAlign.justify,
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xff00b7f3)),
+              style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
               child: const Text('Cancelar'),
             ),
             TextButton(
@@ -252,24 +338,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _addToDo() {
-    if (_toDoController.text.isEmpty) {
+    if (_toDoController['title']!.text.isEmpty) {
       setState(() {
-        error = 'Preencha o campo';
+        error['title'] = 'Campo obrigatório!';
+        print('AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ${error['title']}');
       });
       return;
     }
 
     Todo newToDo = Todo(
-        title: _toDoController.text, ok: false, date: DateTime.now().toLocal());
+        title: _toDoController['title']!.text,
+        ok: false,
+        date: DateTime.now().toLocal(),
+        description: _toDoController['description']!.text);
 
     setState(() {
       _toDoList.add(newToDo);
-      error = null;
+      error['title'] = null;
     });
 
     organize();
     _saveData();
-    _toDoController.clear();
+    _toDoController['title']!.clear();
+    _toDoController['description']!.clear();
+    Navigator.of(context).pop();
   }
 
   void organize() {
