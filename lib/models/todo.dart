@@ -1,28 +1,45 @@
+import 'package:todo_list_2/enums/type_enum.dart';
+import 'package:todo_list_2/models/streaming.dart';
+
 class Todo {
   String title;
-  String description;
-  bool ok = false;
+  TypeEnum type;
+  List<Streaming> streaming;
+  bool ok;
   DateTime date;
 
   Todo({
     required this.title,
-    this.description = '',
-    required this.ok,
+    required this.type,
+    required this.streaming,
+    this.ok = false,
     required this.date,
   });
 
-  Todo.fromJson(Map<String, dynamic> json)
-      : title = json['title'],
-        description = json['description'],
-        ok = json['ok'],
-        date = DateTime.parse(json['date']);
-
+  // Converte o objeto Todo para um mapa (JSON)
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'description': description,
+      'type':
+          type.displayName, // Assume que o TypeEnum tem o atributo displayName
+      'streaming': streaming
+          .map((s) => s.toJson())
+          .toList(), // Converte cada Streaming para JSON
       'ok': ok,
-      'date': date.toIso8601String(),
+      'date': date.toIso8601String(), // Converte o DateTime para string ISO8601
     };
+  }
+
+  // Converte um mapa (JSON) para um objeto Todo
+  factory Todo.fromJson(Map<String, dynamic> json) {
+    return Todo(
+      title: json['title'],
+      type: TypeEnum.values.firstWhere((e) => e.displayName == json['type']),
+      streaming: (json['streaming'] as List)
+          .map((e) => Streaming.fromJson(e as Map<String, dynamic>))
+          .toList(), // Converte os itens de streaming para objetos Streaming
+      ok: json['ok'] ?? false, // Se não houver o campo 'ok', assume false
+      date: DateTime.parse(json['date']), // Converte a string para DateTime
+    );
   }
 }

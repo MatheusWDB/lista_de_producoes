@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:todo_list_2/models/todo.dart';
-import 'package:todo_list_2/widgets/task_item.dart';
+import 'package:todo_list_2/services/storage_services.dart';
+import 'package:todo_list_2/widgets/show_add_todos_dialog.dart';
+import 'package:todo_list_2/widgets/show_delete_todos_confirmation_dialog.dart';
+import 'package:todo_list_2/widgets/todo_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,29 +15,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Map<String, TextEditingController> _toDoController = {
-    'title': TextEditingController(),
-    'description': TextEditingController()
-  };
+  StorageService storageService = StorageService();
 
   List<Todo> _toDoList = [];
 
   Todo? _deletedTodo;
   int? _deletedTodoIndex;
-  Map<String, String?> error = {'title': null, 'description': null};
 
   @override
   void initState() {
     super.initState();
-    _readData().then((data) {
-      setState(() {
-        if (data != null) {
-          // Decodifica a string JSON e converte para List<Todo>
-          List<dynamic> jsonData = json.decode(data);
-          _toDoList = jsonData.map((item) => Todo.fromJson(item)).toList();
-        }
-      });
-    });
+    readData();
   }
 
   @override
@@ -44,7 +33,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Lista de Programas'),
+          title: const Text('Lista de Programas'),
           backgroundColor: Colors.blueAccent,
           centerTitle: true,
           titleTextStyle: TextStyle(
@@ -53,10 +42,11 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             spacing: 12.0,
             children: [
+              Text('Você possui ${_toDoList.length} títulos pendentes'),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -72,12 +62,12 @@ class _HomePageState extends State<HomePage> {
                       shrinkWrap: true,
                       children: [
                         for (Todo todo in _toDoList)
-                          TaskItem(
-                            task: todo,
+                          TodoItem(
+                            todo: todo,
                             onChanged: (value) {
                               setState(() {
                                 todo.ok = value!;
-                                _saveData();
+                                storageService.saveData(_toDoList);
                               });
                             },
                             onDelete: onDelete,
@@ -87,42 +77,35 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  child: ElevatedButton(
-                    onPressed: showAddTodosDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      iconColor: Colors.white,
-                    ),
-                    child: Text(
-                      'Novo Título...',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    ),
-                  ),
-                ),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('Você possui ${_toDoList.length} títulos pendentes'),
                   ElevatedButton(
                     onPressed: showDeleteTodosConfirmationDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
+                      padding: EdgeInsets.all(16),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Limpar Tudo',
                       style: TextStyle(
                         color: Colors.white,
                       ),
                     ),
-                  )
+                  ),
+                  ElevatedButton(
+                    onPressed: showAddTodosDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: EdgeInsets.all(16),
+                    ),
+                    child: Text(
+                      'Novo Título...',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -138,7 +121,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _toDoList.remove(todo);
-      _saveData();
+      storageService.saveData(_toDoList);
     });
 
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -147,7 +130,7 @@ class _HomePageState extends State<HomePage> {
         content: Text(
           'A Tarefa "${todo.title}" foi removida com sucesso!',
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
@@ -160,7 +143,7 @@ class _HomePageState extends State<HomePage> {
               _toDoList.insert(_deletedTodoIndex!, _deletedTodo!);
               ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                   content: Text(
                     'Ação desfeita!',
                     textAlign: TextAlign.center,
@@ -174,111 +157,38 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             });
-            _saveData();
+            storageService.saveData(_toDoList);
           },
           textColor: Colors.blueAccent,
         ),
-        duration: const Duration(seconds: 5),
+        duration: Duration(seconds: 5),
       ),
     );
   }
 
   void showAddTodosDialog() {
     showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
-            title: const Text('Novo Título...'),
-            titleTextStyle: TextStyle(color: Colors.blueAccent, fontSize: 28),
-            content: Column(
-              spacing: 8.0,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _toDoController['title'],
-                  cursorColor: Colors.blueAccent,
-                  decoration: InputDecoration(
-                    labelText: 'Título',
-                    errorText: error['title'],
-                    labelStyle: TextStyle(
-                      color: Colors.blueAccent,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.blueAccent,
-                      ), // Cor quando está focado
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      error['title'] = null; // Remove o erro ao digitar
-                    });
-                  },
-                ),
-                TextField(
-                  controller: _toDoController['description'],
-                  cursorColor: Colors.blueAccent,
-                  decoration: InputDecoration(
-                    labelText: 'Descrição',
-                    errorText: error['description'],
-                    labelStyle: TextStyle(
-                      color: Colors.blueAccent,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.blueAccent,
-                      ), // Cor quando está focado
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _toDoController['title']!.clear();
-                  _toDoController['description']!.clear();
-                  error['title'] = null;
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blueAccent,
-                ),
-                child: const Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (_toDoController['title']!.text.isEmpty) {
-                    setDialogState(() {
-                      error['title'] = 'Campo obrigatório!';
-                    });
-                    return;
-                  }
-                  _addToDo();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blueAccent,
-                ),
-                child: const Text('Adicionar'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+        context: context,
+        builder: (context) => ShowAddTodosDialog(
+              toDoList: _toDoList,
+              onToDoListUpdated: () {
+                setState(() {
+                  readData();
+                });
+              },
+            ));
   }
 
   void showDeleteTodosConfirmationDialog() {
-    if (_toDoList.isNotEmpty) {
+    if (_toDoList.isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text(
+          title: Text(
             'Limpar Tudo?',
           ),
-          content: const Text(
-            'Tem certeza que deseja pagar todas os títulos?',
+          content: Text(
+            'Você não possui títulos cadastrados!',
             textAlign: TextAlign.justify,
           ),
           actions: [
@@ -287,121 +197,51 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                deleteAllTodos();
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text(
-                'Limpar Tudo',
-              ),
+              child: Text('Fechar'),
             ),
           ],
         ),
       );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text(
-            'Limpar Tudo?',
-          ),
-          content: const Text(
-            'Você não possui tarefas!',
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xff00b7f3)),
-              child: const Text('Fechar'),
-            ),
-          ],
-        ),
-      );
+      return;
     }
+
+    showDialog(
+      context: context,
+      builder: (context) => ShowDeleteTodosConfirmationDialog(
+        context: context,
+        deleteAllTodos: deleteAllTodos,
+      ),
+    );
+  }
+
+  void readData() {
+    storageService.readData().then((data) {
+      setState(() {
+        if (data != null) {
+          // Decodifica a string JSON para uma lista de mapas
+          List<dynamic> decodedData = json.decode(data);
+
+          // Mapeia cada mapa para um objeto Todo
+          _toDoList = decodedData.map((item) => Todo.fromJson(item)).toList();
+        }
+      });
+    });
   }
 
   void deleteAllTodos() {
     setState(() {
       _toDoList.clear();
-      _saveData();
+      storageService.saveData(_toDoList);
     });
-  }
-
-  void _addToDo() {
-    if (_toDoController['title']!.text.isEmpty) {
-      setState(() {
-        error['title'] = 'Campo obrigatório!';
-        print('AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ${error['title']}');
-      });
-      return;
-    }
-
-    Todo newToDo = Todo(
-        title: _toDoController['title']!.text,
-        ok: false,
-        date: DateTime.now().toLocal(),
-        description: _toDoController['description']!.text);
-
-    setState(() {
-      _toDoList.add(newToDo);
-      error['title'] = null;
-    });
-
-    organize();
-    _saveData();
-    _toDoController['title']!.clear();
-    _toDoController['description']!.clear();
-    Navigator.of(context).pop();
-  }
-
-  void organize() {
-    _toDoList.sort((a, b) {
-      if (a.ok && !b.ok) {
-        return 1;
-      } else if (!a.ok && b.ok) {
-        return -1;
-      } else {
-        return a.title.toString().compareTo(b.title.toString());
-      }
-    });
-  }
-
-  Future<File> _getFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/data.json');
-  }
-
-  Future<File> _saveData() async {
-    String data = json.encode(_toDoList);
-    final file = await _getFile();
-    return file.writeAsString(data);
-  }
-
-  Future<String?> _readData() async {
-    try {
-      final file = await _getFile();
-      return file.readAsString();
-    } catch (e) {
-      return null;
-    }
   }
 
   Future<Null> _refresh() async {
     await Future.delayed(Duration(seconds: 1));
 
+    storageService.organize(_toDoList);
+
     setState(() {
-      organize();
-      _saveData();
+      storageService.saveData(_toDoList);
     });
 
     return null;
