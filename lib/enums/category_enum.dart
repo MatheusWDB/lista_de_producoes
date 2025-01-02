@@ -1,4 +1,4 @@
-enum TypeEnum {
+enum CategoryEnum {
   absent('Selecione o tipo'),
   anime('Anime'),
   cartoon('Desenho Animado'),
@@ -21,7 +21,7 @@ enum TypeEnum {
 
   final String displayName;
 
-  const TypeEnum(this.displayName);
+  const CategoryEnum(this.displayName);
 
   @override
   String toString() => displayName;

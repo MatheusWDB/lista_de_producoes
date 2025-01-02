@@ -54,7 +54,7 @@ class TodoItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  todo.type.displayName,
+                  todo.category.displayName,
                   style: const TextStyle(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,

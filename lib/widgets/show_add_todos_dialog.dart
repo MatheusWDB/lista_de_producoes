@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list_2/enums/access_enum.dart';
 import 'package:todo_list_2/enums/streaming_enum.dart';
-import 'package:todo_list_2/enums/type_enum.dart';
+import 'package:todo_list_2/enums/category_enum.dart';
 import 'package:todo_list_2/models/streaming.dart';
 import 'package:todo_list_2/models/todo.dart';
 import 'package:todo_list_2/services/storage_services.dart';
@@ -20,13 +20,13 @@ class ShowAddTodosDialog extends StatefulWidget {
 class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
   final Map<String, dynamic> _toDoController = {
     'title': TextEditingController(),
-    'type': TypeEnum.absent,
+    'category': CategoryEnum.absent,
     'streaming': <Streaming>[]
   };
 
   Map<String, dynamic> error = {
     'title': null,
-    'type': null,
+    'category': null,
     'streamingService': null,
     'accessMode': [],
   };
@@ -62,21 +62,21 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             },
           ),
           SingleChildScrollView(
-            child: DropdownMenu<TypeEnum>(
-              errorText: error['type'],
-              initialSelection: _toDoController['type'],
+            child: DropdownMenu<CategoryEnum>(
+              errorText: error['category'],
+              initialSelection: _toDoController['category'],
               menuHeight: MediaQuery.of(context).size.height * 0.44,
-              dropdownMenuEntries: TypeEnum.values.map((type) {
+              dropdownMenuEntries: CategoryEnum.values.map((category) {
                 return DropdownMenuEntry(
-                  value: type,
-                  label: type.displayName,
+                  value: category,
+                  label: category.displayName,
                 );
               }).toList(),
               onSelected: (newValue) {
-                _toDoController['type'] = newValue;
-                if (newValue != TypeEnum.absent) {
+                _toDoController['category'] = newValue;
+                if (newValue != CategoryEnum.absent) {
                   setState(() {
-                    error['type'] = null;
+                    error['category'] = null;
                   });
                 }
               },
@@ -139,8 +139,8 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                 error['title'] = 'Campo obrigatório!';
                 return;
               }
-              if (_toDoController['type'] == TypeEnum.absent) {
-                error['type'] = 'Obrigatório!';
+              if (_toDoController['category'] == CategoryEnum.absent) {
+                error['category'] = 'Obrigatório!';
                 return;
               }
               if (_toDoController['streaming'].isEmpty) {
@@ -174,7 +174,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     Todo newToDo = Todo(
       title: capitalizeFirstLetter(_toDoController['title'].text),
       date: DateTime.now().toLocal(),
-      type: _toDoController['type'],
+      category: _toDoController['category'],
       streaming: _toDoController['streaming'],
     );
 
@@ -188,13 +188,13 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
 
   void resetTodoController() {
     _toDoController['title']!.clear();
-    _toDoController['type'] = TypeEnum.absent;
+    _toDoController['category'] = CategoryEnum.absent;
     _toDoController['streaming'].clear();
   }
 
   void resetError() {
     error['title'] = null;
-    error['type'] = null;
+    error['category'] = null;
     error['streamingService'] = null;
     error['accsesMode'].clear();
   }
