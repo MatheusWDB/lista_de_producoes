@@ -5,19 +5,23 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
     super.key,
     required this.context,
     required this.deleteAllTodos,
+    required this.myLocale,
   });
 
   final BuildContext context;
   final Function deleteAllTodos;
+  final Locale myLocale;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Limpar Tudo?',
+        myLocale.languageCode == 'pt' ? 'Limpar Tudo?' : 'Clear All?',
       ),
       content: Text(
-        'Tem certeza que deseja pagar todas os títulos?',
+        myLocale.languageCode == 'pt'
+            ? 'Tem certeza que deseja pagar todas os títulos?'
+            : 'Are you sure you want to pay all the bills?',
         textAlign: TextAlign.justify,
       ),
       actions: [
@@ -26,7 +30,7 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
-          child: Text('Cancelar'),
+          child: Text(myLocale.languageCode == 'pt' ? 'Cancelar' : 'Cancel'),
         ),
         TextButton(
           onPressed: () {
@@ -37,7 +41,7 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
             foregroundColor: Colors.red,
           ),
           child: Text(
-            'Limpar Tudo',
+            myLocale.languageCode == 'pt' ? 'Limpar Tudo' : 'Clear All',
           ),
         ),
       ],

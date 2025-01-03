@@ -21,10 +21,15 @@ class _HomePageState extends State<HomePage> {
 
   Todo? _deletedTodo;
   int? _deletedTodoIndex;
+  Locale? myLocale;
 
   @override
   void initState() {
     super.initState();
+    // Espera até que o contexto esteja pronto para acessar o Locale
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      myLocale = Localizations.localeOf(context);
+    });
     readData();
   }
 
@@ -33,20 +38,22 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Lista de Programas'),
+          title:
+              Text(myLocale?.languageCode == 'pt' ? 'Minha Lista' : 'My List'),
           backgroundColor: Colors.blueAccent,
           centerTitle: true,
-          titleTextStyle: TextStyle(
+          titleTextStyle: const TextStyle(
             color: Colors.white,
             fontSize: 25.0,
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             spacing: 12.0,
             children: [
-              Text('Você possui ${_toDoList.length} títulos pendentes'),
+              Text(
+                  '${_toDoList.where((todo) => todo.ok == true).length}/${_toDoList.length}'),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -84,11 +91,13 @@ class _HomePageState extends State<HomePage> {
                     onPressed: showDeleteTodosConfirmationDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                     ),
                     child: Text(
-                      'Limpar Tudo',
-                      style: TextStyle(
+                      myLocale?.languageCode == 'pt'
+                          ? 'Limpar Tudo'
+                          : 'Clear All',
+                      style: const TextStyle(
                         color: Colors.white,
                       ),
                     ),
@@ -97,11 +106,13 @@ class _HomePageState extends State<HomePage> {
                     onPressed: showAddTodosDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                     ),
                     child: Text(
-                      'Novo Título...',
-                      style: TextStyle(
+                      myLocale?.languageCode == 'pt'
+                          ? 'Novo Título...'
+                          : 'New Title...',
+                      style: const TextStyle(
                         color: Colors.white,
                       ),
                     ),
@@ -128,9 +139,11 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'A Tarefa "${todo.title}" foi removida com sucesso!',
+          myLocale?.languageCode == 'pt'
+              ? 'O titúlo "${todo.title}" foi removida com sucesso!'
+              : 'The title "${todo.title}" has been removed successfully!',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
@@ -145,15 +158,17 @@ class _HomePageState extends State<HomePage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Ação desfeita!',
+                    myLocale?.languageCode == 'pt'
+                        ? 'Ação desfeita!'
+                        : 'Action undone!',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   backgroundColor: Colors.white,
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             });
@@ -161,7 +176,7 @@ class _HomePageState extends State<HomePage> {
           },
           textColor: Colors.blueAccent,
         ),
-        duration: Duration(seconds: 5),
+        duration: const Duration(seconds: 5),
       ),
     );
   }
@@ -176,6 +191,7 @@ class _HomePageState extends State<HomePage> {
                   readData();
                 });
               },
+              myLocale: myLocale!,
             ));
   }
 
@@ -185,10 +201,12 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(
-            'Limpar Tudo?',
+            myLocale?.languageCode == 'pt' ? 'Limpar Tudo?' : 'Clear All?',
           ),
           content: Text(
-            'Você não possui títulos cadastrados!',
+            myLocale?.languageCode == 'pt'
+                ? 'Você não possui títulos cadastrados!'
+                : 'You do not have registered titles!',
             textAlign: TextAlign.justify,
           ),
           actions: [
@@ -197,7 +215,8 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
-              child: Text('Fechar'),
+              child:
+                  Text(myLocale?.languageCode == 'pt' ? 'Fechar' : 'To close'),
             ),
           ],
         ),
@@ -210,6 +229,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => ShowDeleteTodosConfirmationDialog(
         context: context,
         deleteAllTodos: deleteAllTodos,
+        myLocale: myLocale!,
       ),
     );
   }
@@ -236,7 +256,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<Null> _refresh() async {
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
 
     storageService.organize(_toDoList);
 

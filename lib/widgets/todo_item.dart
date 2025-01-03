@@ -29,12 +29,11 @@ class TodoItem extends StatelessWidget {
               onPressed: (context) {
                 onDelete(todo);
               },
-              backgroundColor: Color(0xFFFE4A49),
+              backgroundColor: const Color(0xFFFE4A49),
               foregroundColor: Colors.white,
               icon: Icons.delete,
               label: 'Delete',
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(10)),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
             ),
           ],
         ),
@@ -63,8 +62,8 @@ class TodoItem extends StatelessWidget {
                 ),
               ],
             ),
-            subtitle: Container(              
-              padding: EdgeInsets.all(8),
+            subtitle: Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(border: Border.all(width: 1)),
               child: Text(
                 todo.streaming.map((item) {

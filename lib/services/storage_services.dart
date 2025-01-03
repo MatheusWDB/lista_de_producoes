@@ -42,7 +42,6 @@ class StorageService {
         return -1;
       } else {
         return a.title
-            .toString()
             .toLowerCase()
             .compareTo(b.title.toString().toLowerCase());
       }

@@ -9,9 +9,13 @@ import 'package:todo_list_2/services/storage_services.dart';
 class ShowAddTodosDialog extends StatefulWidget {
   final List<Todo> toDoList;
   final VoidCallback onToDoListUpdated;
+  final Locale myLocale;
 
   const ShowAddTodosDialog(
-      {super.key, required this.toDoList, required this.onToDoListUpdated});
+      {super.key,
+      required this.toDoList,
+      required this.onToDoListUpdated,
+      required this.myLocale});
 
   @override
   State<ShowAddTodosDialog> createState() => _ShowAddTodosDialogState();
@@ -34,8 +38,8 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Novo Título...'),
-      titleTextStyle: TextStyle(color: Colors.blueAccent, fontSize: 28),
+      title: Text(widget.myLocale.languageCode == 'pt' ? 'Novo Título...' : ''),
+      titleTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 28),
       content: Column(
         spacing: 8.0,
         mainAxisSize: MainAxisSize.min,
@@ -44,12 +48,12 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             controller: _toDoController['title'],
             cursorColor: Colors.blueAccent,
             decoration: InputDecoration(
-              labelText: 'Título',
+              labelText: widget.myLocale.languageCode == 'pt' ? 'Título' : '',
               errorText: error['title'],
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                 color: Colors.blueAccent,
               ),
-              focusedBorder: UnderlineInputBorder(
+              focusedBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(
                   color: Colors.blueAccent,
                 ),
@@ -89,7 +93,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                 style: ElevatedButton.styleFrom(
                   side: error['streamingAccess'] == null
                       ? null
-                      : BorderSide(
+                      : const BorderSide(
                           color: Colors.red, // Espessura da borda
                         ),
                 ),
@@ -100,14 +104,16 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                   _showStreamingAccessDialog(context);
                 },
                 child: Text(
-                  'Disponível em...',
-                  style: TextStyle(color: Colors.blueAccent),
+                  widget.myLocale.languageCode == 'pt'
+                      ? 'Disponível em...'
+                      : '',
+                  style: const TextStyle(color: Colors.blueAccent),
                 ),
               ),
               if (error['streamingService'] != null) ...[
                 Text(
                   error['streamingService']!,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 12,
                   ),
@@ -122,37 +128,48 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
           onPressed: () {
             Navigator.of(context).pop();
             resetTodoController();
-
             resetError();
           },
           child: Text(
-            'Cancelar',
-            style: TextStyle(
+            widget.myLocale.languageCode == 'pt' ? 'Cancelar' : 'Cancel',
+            style: const TextStyle(
               color: Colors.redAccent,
             ),
           ),
         ),
         TextButton(
           onPressed: () {
-            setState(() {
-              if (_toDoController['title'].text.isEmpty) {
-                error['title'] = 'Campo obrigatório!';
-                return;
-              }
-              if (_toDoController['category'] == CategoryEnum.absent) {
-                error['category'] = 'Obrigatório!';
-                return;
-              }
-              if (_toDoController['streaming'].isEmpty) {
-                error['streamingService'] = 'Obrigatório!';
-                return;
-              }
-              _addToDo();
-            });
+            if (_toDoController['title'].text.isEmpty) {
+              setState(() {
+                error['title'] = widget.myLocale.languageCode == 'pt'
+                    ? 'Campo obrigatório!'
+                    : '';
+              });
+
+              return;
+            }
+            if (_toDoController['category'] == CategoryEnum.absent) {
+              setState(() {
+                error['category'] =
+                    widget.myLocale.languageCode == 'pt' ? 'Obrigatório!' : '';
+              });
+
+              return;
+            }
+            if (_toDoController['streaming'].isEmpty) {
+              setState(() {
+                error['streamingService'] =
+                    widget.myLocale.languageCode == 'pt' ? 'Obrigatório!' : '';
+              });
+
+              return;
+            }
+            _addToDo();
+            Navigator.of(context).pop();
           },
           child: Text(
-            'Adicionar',
-            style: TextStyle(
+            widget.myLocale.languageCode == 'pt' ? 'Adicionar' : 'Add',
+            style: const TextStyle(
               color: Colors.blueAccent,
             ),
           ),
@@ -163,7 +180,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
 
   String capitalizeFirstLetter(String text) {
     return text
-        .split(' ') // Divide a string em palavras
+        .split(' ')
         .map((word) => word.isNotEmpty
             ? word[0].toUpperCase() + word.substring(1).toLowerCase()
             : word)
@@ -171,11 +188,16 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
   }
 
   void _addToDo() {
+    List<Streaming> streaming = _toDoController['streaming'];
+
+    streaming.sort((a, b) => a.streamingService.displayName
+        .compareTo(b.streamingService.displayName));
+
     Todo newToDo = Todo(
-      title: capitalizeFirstLetter(_toDoController['title'].text),
+      title: _toDoController['title'].text,
       date: DateTime.now().toLocal(),
       category: _toDoController['category'],
-      streaming: _toDoController['streaming'],
+      streaming: streaming,
     );
 
     widget.toDoList.add(newToDo);
@@ -183,7 +205,6 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     widget.onToDoListUpdated();
     resetTodoController();
     resetError();
-    Navigator.of(context).pop();
   }
 
   void resetTodoController() {
@@ -196,7 +217,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     error['title'] = null;
     error['category'] = null;
     error['streamingService'] = null;
-    error['accsesMode'].clear();
+    error['accessMode'].clear();
   }
 
   void _showStreamingAccessDialog(BuildContext context) {
@@ -206,7 +227,9 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text('Selecione Streaming e o tipo de Acesso'),
+              title: Text(widget.myLocale.languageCode == 'pt'
+                  ? 'Selecione Streaming e o tipo de Acesso'
+                  : ''),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -238,7 +261,10 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                                   child: Column(
                                     children: [
                                       CheckboxListTile(
-                                        title: Text(streaming.displayName),
+                                        title: Text(
+                                            widget.myLocale.languageCode == 'pt'
+                                                ? streaming.displayName
+                                                : ''),
                                         value: isSelected,
                                         onChanged: (selected) {
                                           setState(() {
@@ -293,7 +319,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     Text(
                       error['streamingService'],
                       textAlign: TextAlign.start,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,
                       ),
@@ -309,8 +335,8 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     resetError();
                   },
                   child: Text(
-                    'Voltar',
-                    style: TextStyle(
+                    widget.myLocale.languageCode == 'pt' ? 'Voltar' : '',
+                    style: const TextStyle(
                       color: Colors.redAccent,
                     ),
                   ),
@@ -319,7 +345,10 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                   onPressed: () {
                     if (_toDoController['streaming'].isEmpty) {
                       setState(() {
-                        error['streamingService'] = 'Escolha ao menos um!';
+                        error['streamingService'] =
+                            widget.myLocale.languageCode == 'pt'
+                                ? 'Escolha ao menos um!'
+                                : '';
                       });
                       return;
                     }
@@ -331,7 +360,10 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
 
                       if (element.accessMode == AccessEnum.absent) {
                         setState(() {
-                          error['accessMode'][index] = 'Obrigatório';
+                          error['accessMode'][index] =
+                              widget.myLocale.languageCode == 'pt'
+                                  ? 'Obrigatório'
+                                  : '';
                         });
 
                         errors++;
@@ -341,8 +373,8 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     Navigator.pop(context);
                   },
                   child: Text(
-                    'Confirmar',
-                    style: TextStyle(
+                    widget.myLocale.languageCode == 'pt' ? 'Confirmar' : '',
+                    style: const TextStyle(
                       color: Colors.blueAccent,
                     ),
                   ),
