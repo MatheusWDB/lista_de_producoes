@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
   const ShowDeleteTodosConfirmationDialog({
@@ -16,12 +17,10 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        myLocale.languageCode == 'pt' ? 'Limpar Tudo?' : 'Clear All?',
+        AppLocalizations.of(context)!.clearAllConfirmationDialog,
       ),
       content: Text(
-        myLocale.languageCode == 'pt'
-            ? 'Tem certeza que deseja pagar todas os títulos?'
-            : 'Are you sure you want to pay all the bills?',
+        AppLocalizations.of(context)!.confirmDeleteAll,
         textAlign: TextAlign.justify,
       ),
       actions: [
@@ -30,7 +29,7 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
-          child: Text(myLocale.languageCode == 'pt' ? 'Cancelar' : 'Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: () {
@@ -41,7 +40,7 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
             foregroundColor: Colors.red,
           ),
           child: Text(
-            myLocale.languageCode == 'pt' ? 'Limpar Tudo' : 'Clear All',
+            AppLocalizations.of(context)!.clearAll,
           ),
         ),
       ],

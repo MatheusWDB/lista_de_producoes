@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:todo_list_2/enums/access_enum.dart';
 import 'package:todo_list_2/enums/streaming_enum.dart';
 import 'package:todo_list_2/enums/category_enum.dart';
@@ -38,7 +39,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.myLocale.languageCode == 'pt' ? 'Novo Título...' : ''),
+      title: Text(AppLocalizations.of(context)!.newTitle),
       titleTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 28),
       content: Column(
         spacing: 8.0,
@@ -48,7 +49,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             controller: _toDoController['title'],
             cursorColor: Colors.blueAccent,
             decoration: InputDecoration(
-              labelText: widget.myLocale.languageCode == 'pt' ? 'Título' : '',
+              labelText: AppLocalizations.of(context)!.title,
               errorText: error['title'],
               labelStyle: const TextStyle(
                 color: Colors.blueAccent,
@@ -104,9 +105,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                   _showStreamingAccessDialog(context);
                 },
                 child: Text(
-                  widget.myLocale.languageCode == 'pt'
-                      ? 'Disponível em...'
-                      : '',
+                  AppLocalizations.of(context)!.availableOn,
                   style: const TextStyle(color: Colors.blueAccent),
                 ),
               ),
@@ -131,7 +130,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             resetError();
           },
           child: Text(
-            widget.myLocale.languageCode == 'pt' ? 'Cancelar' : 'Cancel',
+            AppLocalizations.of(context)!.cancel,
             style: const TextStyle(
               color: Colors.redAccent,
             ),
@@ -141,17 +140,14 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
           onPressed: () {
             if (_toDoController['title'].text.isEmpty) {
               setState(() {
-                error['title'] = widget.myLocale.languageCode == 'pt'
-                    ? 'Campo obrigatório!'
-                    : '';
+                error['title'] = AppLocalizations.of(context)!.requiredField;
               });
 
               return;
             }
             if (_toDoController['category'] == CategoryEnum.absent) {
               setState(() {
-                error['category'] =
-                    widget.myLocale.languageCode == 'pt' ? 'Obrigatório!' : '';
+                error['category'] = AppLocalizations.of(context)!.required;
               });
 
               return;
@@ -159,7 +155,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             if (_toDoController['streaming'].isEmpty) {
               setState(() {
                 error['streamingService'] =
-                    widget.myLocale.languageCode == 'pt' ? 'Obrigatório!' : '';
+                    AppLocalizations.of(context)!.required;
               });
 
               return;
@@ -168,7 +164,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             Navigator.of(context).pop();
           },
           child: Text(
-            widget.myLocale.languageCode == 'pt' ? 'Adicionar' : 'Add',
+            AppLocalizations.of(context)!.add,
             style: const TextStyle(
               color: Colors.blueAccent,
             ),
@@ -227,9 +223,8 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text(widget.myLocale.languageCode == 'pt'
-                  ? 'Selecione Streaming e o tipo de Acesso'
-                  : ''),
+              title:
+                  Text(AppLocalizations.of(context)!.selectStreamingAndAccess),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -261,10 +256,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                                   child: Column(
                                     children: [
                                       CheckboxListTile(
-                                        title: Text(
-                                            widget.myLocale.languageCode == 'pt'
-                                                ? streaming.displayName
-                                                : ''),
+                                        title: Text(streaming.displayName),
                                         value: isSelected,
                                         onChanged: (selected) {
                                           setState(() {
@@ -335,7 +327,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     resetError();
                   },
                   child: Text(
-                    widget.myLocale.languageCode == 'pt' ? 'Voltar' : '',
+                    AppLocalizations.of(context)!.back,
                     style: const TextStyle(
                       color: Colors.redAccent,
                     ),
@@ -346,9 +338,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     if (_toDoController['streaming'].isEmpty) {
                       setState(() {
                         error['streamingService'] =
-                            widget.myLocale.languageCode == 'pt'
-                                ? 'Escolha ao menos um!'
-                                : '';
+                            AppLocalizations.of(context)!.chooseAtLeastOne;
                       });
                       return;
                     }
@@ -361,9 +351,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                       if (element.accessMode == AccessEnum.absent) {
                         setState(() {
                           error['accessMode'][index] =
-                              widget.myLocale.languageCode == 'pt'
-                                  ? 'Obrigatório'
-                                  : '';
+                              AppLocalizations.of(context)!.required;
                         });
 
                         errors++;
@@ -373,7 +361,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     Navigator.pop(context);
                   },
                   child: Text(
-                    widget.myLocale.languageCode == 'pt' ? 'Confirmar' : '',
+                    AppLocalizations.of(context)!.confirm,
                     style: const TextStyle(
                       color: Colors.blueAccent,
                     ),
