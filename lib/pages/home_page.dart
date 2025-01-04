@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:todo_list_2/enums/access_enum.dart';
 import 'package:todo_list_2/enums/category_enum.dart';
+import 'package:todo_list_2/enums/filter_enum.dart';
 import 'package:todo_list_2/enums/streaming_enum.dart';
 import 'package:todo_list_2/models/todo.dart';
 import 'package:todo_list_2/services/filtering_services.dart';
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   OrganizationServices organizationServices = OrganizationServices();
   FilteringServices filteringServices = FilteringServices();
 
-  String filter = 'all';
+  FilterEnum filter = FilterEnum.all;
   CategoryEnum? filterByCategory;
   StreamingEnum? filterByStreamingService;
   AccessEnum? filterByAccessMode;
@@ -49,15 +50,15 @@ class _HomePageState extends State<HomePage> {
     });
 
     final List<Todo> filteredList = switch (filter) {
-      'watched' => filteringServices.filterByWatched(_toDoList),
-      'unwatched' => filteringServices.filterByUnwatched(_toDoList),
-      'category' =>
+      FilterEnum.all => _toDoList,
+      FilterEnum.watched => filteringServices.filterByWatched(_toDoList),
+      FilterEnum.unwatched => filteringServices.filterByUnwatched(_toDoList),
+      FilterEnum.category =>
         filteringServices.filterByCategory(_toDoList, filterByCategory!),
-      'streaming' => filteringServices.filterByStreamingService(
+      FilterEnum.streaming => filteringServices.filterByStreamingService(
           _toDoList, filterByStreamingService!),
-      'access' =>
+      FilterEnum.access =>
         filteringServices.filterByAccessMode(_toDoList, filterByAccessMode!),
-      _ => _toDoList,
     };
 
     return SafeArea(
