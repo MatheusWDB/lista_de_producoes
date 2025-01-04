@@ -2,7 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:todo_list_2/enums/access_enum.dart';
+import 'package:todo_list_2/enums/category_enum.dart';
+import 'package:todo_list_2/enums/streaming_enum.dart';
 import 'package:todo_list_2/models/todo.dart';
+import 'package:todo_list_2/services/filtering_services.dart';
+import 'package:todo_list_2/services/organization_services.dart';
 import 'package:todo_list_2/services/storage_services.dart';
 import 'package:todo_list_2/widgets/show_add_todos_dialog.dart';
 import 'package:todo_list_2/widgets/show_delete_todos_confirmation_dialog.dart';
@@ -16,7 +21,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  StorageService storageService = StorageService();
+  StorageServices storageServices = StorageServices();
+  OrganizationServices organizationServices = OrganizationServices();
+  FilteringServices filteringServices = FilteringServices();
+
+  String filter = 'all';
+  CategoryEnum? filterByCategory;
+  StreamingEnum? filterByStreamingService;
+  AccessEnum? filterByAccessMode;
 
   List<Todo> _toDoList = [];
 
@@ -35,6 +47,19 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       myLocale = Localizations.localeOf(context);
     });
+
+    final List<Todo> filteredList = switch (filter) {
+      'watched' => filteringServices.filterByWatched(_toDoList),
+      'unwatched' => filteringServices.filterByUnwatched(_toDoList),
+      'category' =>
+        filteringServices.filterByCategory(_toDoList, filterByCategory!),
+      'streaming' => filteringServices.filterByStreamingService(
+          _toDoList, filterByStreamingService!),
+      'access' =>
+        filteringServices.filterByAccessMode(_toDoList, filterByAccessMode!),
+      _ => _toDoList,
+    };
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -71,13 +96,17 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           spacing: 5.0,
                           children: [
-                            for (Todo todo in _toDoList)
+                            for (Todo todo in filteredList)
                               TodoItem(
                                 todo: todo,
+                                toDoList: _toDoList,
                                 onChanged: (value) {
                                   setState(() {
-                                    todo.ok = value!;
-                                    storageService.saveData(_toDoList);
+                                    _toDoList
+                                        .firstWhere(
+                                            (element) => element == todo)
+                                        .ok = value!;
+                                    storageServices.saveData(_toDoList);
                                   });
                                 },
                                 onDelete: onDelete,
@@ -135,7 +164,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _toDoList.remove(todo);
-      storageService.saveData(_toDoList);
+      storageServices.saveData(_toDoList);
     });
 
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -171,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             });
-            storageService.saveData(_toDoList);
+            storageServices.saveData(_toDoList);
           },
           textColor: Colors.blueAccent,
         ),
@@ -231,7 +260,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void readData() {
-    storageService.readData().then((data) {
+    storageServices.readData().then((data) {
       setState(() {
         if (data != null) {
           // Decodifica a string JSON para uma lista de mapas
@@ -247,19 +276,15 @@ class _HomePageState extends State<HomePage> {
   void deleteAllTodos() {
     setState(() {
       _toDoList.clear();
-      storageService.saveData(_toDoList);
+      storageServices.saveData(_toDoList);
     });
   }
 
   Future<Null> _refresh() async {
     await Future.delayed(const Duration(seconds: 1));
-
-    storageService.organize(_toDoList);
-
     setState(() {
-      storageService.saveData(_toDoList);
+      readData();
     });
-
     return null;
   }
 }

@@ -5,12 +5,14 @@ import 'package:todo_list_2/models/todo.dart';
 
 class TodoItem extends StatelessWidget {
   final Todo todo;
+  final List<Todo> toDoList;
   final Function(bool?) onChanged;
   final Function(Todo) onDelete;
 
   const TodoItem({
     super.key,
     required this.todo,
+    required this.toDoList,
     required this.onChanged,
     required this.onDelete,
   });
@@ -26,7 +28,7 @@ class TodoItem extends StatelessWidget {
           // A SlidableAction can have an icon and/or a label.
           SlidableAction(
             onPressed: (context) {
-              onDelete(todo);
+              onDelete(toDoList.firstWhere((element) => element == todo));
             },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,

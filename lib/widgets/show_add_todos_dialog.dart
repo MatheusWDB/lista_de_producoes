@@ -11,6 +11,7 @@ class ShowAddTodosDialog extends StatefulWidget {
   final List<Todo> toDoList;
   final VoidCallback onToDoListUpdated;
   final Locale myLocale;
+  
 
   const ShowAddTodosDialog(
       {super.key,
@@ -67,7 +68,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             },
           ),
           SingleChildScrollView(
-            child: DropdownMenu<CategoryEnum>(
+            child: DropdownMenu(
               errorText: error['category'],
               initialSelection: _toDoController['category'],
               menuHeight: MediaQuery.of(context).size.height * 0.44,
@@ -152,7 +153,9 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
 
               return;
             }
-            if (_toDoController['streaming'].isEmpty) {
+            if (_toDoController['streaming'].isEmpty ||
+                _toDoController['streaming']
+                    .any((e) => e.accessMode == AccessEnum.absent)) {
               setState(() {
                 error['streamingService'] =
                     AppLocalizations.of(context)!.required;
@@ -197,7 +200,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     );
 
     widget.toDoList.add(newToDo);
-    StorageService().saveData(widget.toDoList);
+    StorageServices().saveData(widget.toDoList);
     widget.onToDoListUpdated();
     resetTodoController();
     resetError();
