@@ -5,11 +5,11 @@ import 'package:todo_list_2/models/todo.dart';
 
 class FilteringServices {
   List<Todo> filterByWatched(List<Todo> toDoList) {
-    return toDoList.where((todo) => todo.ok).toList();
+    return toDoList.where((todo) => todo.watched).toList();
   }
 
   List<Todo> filterByUnwatched(List<Todo> toDoList) {
-    return toDoList.where((todo) => !todo.ok).toList();
+    return toDoList.where((todo) => !todo.watched).toList();
   }
 
   List<Todo> filterByCategory(List<Todo> toDoList, CategoryEnum category) {

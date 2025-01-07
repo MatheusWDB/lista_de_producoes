@@ -10,6 +10,7 @@ enum StreamingEnum {
   prime('Prime Video'),
   sbt('SBT+'),
   telecine('Telecine'),
+  youtube('YouTube'),
   piracy('Pirataria');
 
   final String displayName;

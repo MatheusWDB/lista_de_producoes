@@ -1,6 +1,6 @@
 {
   "homePageTitle": "Minha Lista",
-  "completedTitles": "{completed}/{total} títulos concluídos. Continue assistindo!",
+  "completedTitles": "{completed}/{total} títulos assistidos!",
   "clearAll": "Limpar Tudo",
   "newTitle": "Novo Título...",
   "titleRemoved": "O título \"{title}\" foi removido com sucesso!",

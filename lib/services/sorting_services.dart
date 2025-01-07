@@ -1,82 +1,101 @@
 import 'package:todo_list_2/models/todo.dart';
 
-class OrganizationServices {
+class SortingServices {
+  List<Todo> dateOfCreationAscending(List<Todo> toDoList) {
+    toDoList.sort((a, b) => a.date.compareTo(b.date));
+    return toDoList;
+  }
 
-  void alphabeticalOrderAscending(List<Todo> toDoList) {
+  List<Todo> dateOfCreationDescending(List<Todo> toDoList) {
+    toDoList.sort((a, b) => b.date.compareTo(a.date));
+    return toDoList;
+  }
+
+  List<Todo> alphabeticalOrderAscending(List<Todo> toDoList) {
     toDoList
         .sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+    return toDoList;
   }
 
-  void alphabeticalOrderDescending(List<Todo> toDoList) {
+  List<Todo> alphabeticalOrderDescending(List<Todo> toDoList) {
     toDoList
         .sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
+    return toDoList;
   }
 
-  void watched(List<Todo> toDoList) {
+  List<Todo> watched(List<Todo> toDoList) {
     toDoList.sort((a, b) {
-      if (!a.ok && b.ok) {
+      if (!a.watched && b.watched) {
         return 1;
-      } else if (a.ok && !b.ok) {
+      } else if (a.watched && !b.watched) {
         return -1;
       } else {
         return a.title.toLowerCase().compareTo(b.title.toLowerCase());
       }
     });
+    return toDoList;
   }
 
-  void unwatched(List<Todo> toDoList) {
+  List<Todo> unwatched(List<Todo> toDoList) {
     toDoList.sort((a, b) {
-      if (a.ok && !b.ok) {
+      if (a.watched && !b.watched) {
         return 1;
-      } else if (!a.ok && b.ok) {
+      } else if (!a.watched && b.watched) {
         return -1;
       } else {
         return a.title.toLowerCase().compareTo(b.title.toLowerCase());
       }
     });
+    return toDoList;
   }
 
-  void categoryAscending(List<Todo> toDoList) {
+  List<Todo> categoryAscending(List<Todo> toDoList) {
     toDoList.sort((a, b) => a.category
         .toString()
         .toLowerCase()
         .compareTo(b.category.toString().toLowerCase()));
+    return toDoList;
   }
 
-  void categoryDescending(List<Todo> toDoList) {
+  List<Todo> categoryDescending(List<Todo> toDoList) {
     toDoList.sort((a, b) => b.category
         .toString()
         .toLowerCase()
         .compareTo(a.category.toString().toLowerCase()));
+    return toDoList;
   }
 
-  void streamingServiceAscending(List<Todo> toDoList) {
+  List<Todo> streamingServiceAscending(List<Todo> toDoList) {
     toDoList.sort((a, b) => a.streaming.first
         .toString()
         .toLowerCase()
         .compareTo(b.streaming.first.toString().toLowerCase()));
+    return toDoList;
   }
 
-  void streamingServiceDescending(List<Todo> toDoList) {
+  List<Todo> streamingServiceDescending(List<Todo> toDoList) {
     toDoList.sort((a, b) => b.streaming.first
         .toString()
         .toLowerCase()
         .compareTo(a.streaming.first.toString().toLowerCase()));
+    return toDoList;
   }
 
-  void accessModeAscending(List<Todo> toDoList) {
+  List<Todo> accessModeAscending(List<Todo> toDoList) {
     toDoList.sort((a, b) => a.streaming.first
         .toString()
         .split(' - ')[1]
         .toLowerCase()
         .compareTo(b.streaming.first.toString().split(' - ')[1].toLowerCase()));
+    return toDoList;
   }
 
-  void accessModeDescending(List<Todo> toDoList) {
+  List<Todo> accessModeDescending(List<Todo> toDoList) {
     toDoList.sort((a, b) => b.streaming.first
         .toString()
         .split(' - ')[1]
         .toLowerCase()
         .compareTo(a.streaming.first.toString().split(' - ')[1].toLowerCase()));
+    return toDoList;
   }
 }

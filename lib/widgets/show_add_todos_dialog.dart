@@ -11,7 +11,6 @@ class ShowAddTodosDialog extends StatefulWidget {
   final List<Todo> toDoList;
   final VoidCallback onToDoListUpdated;
   final Locale myLocale;
-  
 
   const ShowAddTodosDialog(
       {super.key,
@@ -30,7 +29,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     'streaming': <Streaming>[]
   };
 
-  Map<String, dynamic> error = {
+  final Map<String, dynamic> error = {
     'title': null,
     'category': null,
     'streamingService': null,
@@ -175,15 +174,6 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
         ),
       ],
     );
-  }
-
-  String capitalizeFirstLetter(String text) {
-    return text
-        .split(' ')
-        .map((word) => word.isNotEmpty
-            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
-            : word)
-        .join(' ');
   }
 
   void _addToDo() {

@@ -5,10 +5,11 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:todo_list_2/enums/access_enum.dart';
 import 'package:todo_list_2/enums/category_enum.dart';
 import 'package:todo_list_2/enums/filter_enum.dart';
+import 'package:todo_list_2/enums/sort_enum.dart';
 import 'package:todo_list_2/enums/streaming_enum.dart';
 import 'package:todo_list_2/models/todo.dart';
 import 'package:todo_list_2/services/filtering_services.dart';
-import 'package:todo_list_2/services/organization_services.dart';
+import 'package:todo_list_2/services/sorting_services.dart';
 import 'package:todo_list_2/services/storage_services.dart';
 import 'package:todo_list_2/widgets/show_add_todos_dialog.dart';
 import 'package:todo_list_2/widgets/show_delete_todos_confirmation_dialog.dart';
@@ -22,14 +23,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  StorageServices storageServices = StorageServices();
-  OrganizationServices organizationServices = OrganizationServices();
-  FilteringServices filteringServices = FilteringServices();
+  final StorageServices storageServices = StorageServices();
+  final SortingServices sortingServices = SortingServices();
+  final FilteringServices filteringServices = FilteringServices();
 
   FilterEnum filter = FilterEnum.all;
+  SortEnum sort = SortEnum.date;
+  bool ascending = true;
+
   CategoryEnum? filterByCategory;
   StreamingEnum? filterByStreamingService;
   AccessEnum? filterByAccessMode;
+
+  final Map<String, String?> error = {
+    'sort': null,
+    'filter': null,
+  };
 
   List<Todo> _toDoList = [];
 
@@ -49,7 +58,30 @@ class _HomePageState extends State<HomePage> {
       myLocale = Localizations.localeOf(context);
     });
 
-    final List<Todo> filteredList = switch (filter) {
+    List<Todo> renderedList = _toDoList;
+
+    renderedList = switch (sort) {
+      SortEnum.date => ascending == true
+          ? sortingServices.dateOfCreationAscending(_toDoList)
+          : sortingServices.dateOfCreationDescending(_toDoList),
+      SortEnum.watched => ascending == true
+          ? sortingServices.watched(_toDoList)
+          : sortingServices.unwatched(_toDoList),
+      SortEnum.alphabeticalOrder => ascending == true
+          ? sortingServices.alphabeticalOrderAscending(_toDoList)
+          : sortingServices.alphabeticalOrderDescending(_toDoList),
+      SortEnum.category => ascending == true
+          ? sortingServices.categoryAscending(_toDoList)
+          : sortingServices.categoryDescending(_toDoList),
+      SortEnum.streaming => ascending == true
+          ? sortingServices.streamingServiceAscending(_toDoList)
+          : sortingServices.streamingServiceDescending(_toDoList),
+      SortEnum.access => ascending == true
+          ? sortingServices.accessModeAscending(_toDoList)
+          : sortingServices.accessModeDescending(_toDoList),
+    };
+
+    renderedList = switch (filter) {
       FilterEnum.all => _toDoList,
       FilterEnum.watched => filteringServices.filterByWatched(_toDoList),
       FilterEnum.unwatched => filteringServices.filterByUnwatched(_toDoList),
@@ -63,6 +95,7 @@ class _HomePageState extends State<HomePage> {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 246, 249, 255),
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.homePageTitle),
           backgroundColor: Colors.blueAccent,
@@ -77,16 +110,52 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             spacing: 12.0,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  PopupMenuButton<SortEnum>(
+                    requestFocus: true,
+                    offset: const Offset(0, 45),
+                    initialValue: sort,
+                    onSelected: (value) {
+                      setState(() {
+                        if (sort == value) {
+                          ascending = !ascending;
+                          return;
+                        }
+                        ascending == false ? ascending = true : null;
+                        sort = value;
+                      });
+                    },
+                    itemBuilder: (context) => [
+                      for (SortEnum sort in SortEnum.values)
+                        PopupMenuItem(
+                            value: sort, child: Text(sort.displayName))
+                    ],
+                    child: TextButton.icon(
+                      onPressed: null,
+                      label: const Text(
+                        'Ordenar por:',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      icon: Icon(
+                        ascending == true
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: Colors.black,
+                      ),
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  ),                  
+                ],
+              ),
               Text(AppLocalizations.of(context)!.completedTitles(
-                  _toDoList.where((todo) => todo.ok == true).length,
+                  _toDoList.where((todo) => todo.watched == true).length,
                   _toDoList.length)),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.blueAccent,
-                      width: 1.0,
-                    ),
+                    color: const Color.fromARGB(255, 220, 232, 255),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: RefreshIndicator(
@@ -97,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           spacing: 5.0,
                           children: [
-                            for (Todo todo in filteredList)
+                            for (Todo todo in renderedList)
                               TodoItem(
                                 todo: todo,
                                 toDoList: _toDoList,
@@ -106,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                                     _toDoList
                                         .firstWhere(
                                             (element) => element == todo)
-                                        .ok = value!;
+                                        .watched = value!;
                                     storageServices.saveData(_toDoList);
                                   });
                                 },
@@ -127,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       padding: const EdgeInsets.all(16),
-                      fixedSize: Size(135, 50),
+                      fixedSize: const Size(135, 50),
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.clearAll,
@@ -141,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       padding: const EdgeInsets.all(16),
-                      fixedSize: Size(135, 50),
+                      fixedSize: const Size(135, 50),
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.newTitle,
