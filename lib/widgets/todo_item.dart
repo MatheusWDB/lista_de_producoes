@@ -92,7 +92,7 @@ class TodoItem extends StatelessWidget {
                     StreamingEnum.sbt => const Color(0xFF00A859),
                     StreamingEnum.telecine => const Color(0xFF010066),
                     StreamingEnum.youtube => const Color(0xFFFE0033),
-                    StreamingEnum.piracy => const Color(0xFF000000),
+                    _ => const Color(0xFF000000),
                   };
                   return TextSpan(
                     children: [

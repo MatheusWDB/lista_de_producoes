@@ -3,7 +3,7 @@ enum SortEnum {
   watched('Assistidos'),
   alphabeticalOrder('Ordem alfabética'),
   category('Categoria'),
-  streaming('Serviço de streaming'),
+  streaming('Streaming'),
   access('Modo de acesso');
 
   final String displayName;

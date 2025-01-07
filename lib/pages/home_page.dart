@@ -11,6 +11,8 @@ import 'package:todo_list_2/models/todo.dart';
 import 'package:todo_list_2/services/filtering_services.dart';
 import 'package:todo_list_2/services/sorting_services.dart';
 import 'package:todo_list_2/services/storage_services.dart';
+import 'package:todo_list_2/widgets/popup_menu_filtering.dart';
+import 'package:todo_list_2/widgets/popup_menu_sorting.dart';
 import 'package:todo_list_2/widgets/show_add_todos_dialog.dart';
 import 'package:todo_list_2/widgets/show_delete_todos_confirmation_dialog.dart';
 import 'package:todo_list_2/widgets/todo_item.dart';
@@ -31,9 +33,9 @@ class _HomePageState extends State<HomePage> {
   SortEnum sort = SortEnum.date;
   bool ascending = true;
 
-  CategoryEnum? filterByCategory;
-  StreamingEnum? filterByStreamingService;
-  AccessEnum? filterByAccessMode;
+  CategoryEnum filterByCategory = CategoryEnum.absent;
+  StreamingEnum filterByStreamingService = StreamingEnum.absent;
+  AccessEnum filterByAccessMode = AccessEnum.absent;
 
   final Map<String, String?> error = {
     'sort': null,
@@ -86,11 +88,11 @@ class _HomePageState extends State<HomePage> {
       FilterEnum.watched => filteringServices.filterByWatched(_toDoList),
       FilterEnum.unwatched => filteringServices.filterByUnwatched(_toDoList),
       FilterEnum.category =>
-        filteringServices.filterByCategory(_toDoList, filterByCategory!),
+        filteringServices.filterByCategory(_toDoList, filterByCategory),
       FilterEnum.streaming => filteringServices.filterByStreamingService(
-          _toDoList, filterByStreamingService!),
+          _toDoList, filterByStreamingService),
       FilterEnum.access =>
-        filteringServices.filterByAccessMode(_toDoList, filterByAccessMode!),
+        filteringServices.filterByAccessMode(_toDoList, filterByAccessMode),
     };
 
     return SafeArea(
@@ -113,40 +115,35 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  PopupMenuButton<SortEnum>(
-                    requestFocus: true,
-                    offset: const Offset(0, 45),
-                    initialValue: sort,
+                  PopupMenuSorting(
+                      sort: sort,
+                      ascending: ascending,
+                      onSelected: (value) {
+                        setState(() {
+                          if (sort == value) {
+                            ascending = !ascending;
+                            return;
+                          }
+                          ascending == false ? ascending = true : null;
+                          sort = value as SortEnum;
+                        });
+                      }),
+                  PopupMenuFiltering(
+                    filter: filter,
                     onSelected: (value) {
-                      setState(() {
-                        if (sort == value) {
-                          ascending = !ascending;
-                          return;
-                        }
-                        ascending == false ? ascending = true : null;
-                        sort = value;
-                      });
+                      if (value != FilterEnum.category &&
+                          value != FilterEnum.streaming &&
+                          value != FilterEnum.access) {
+                        setState(() {
+                          filter = value as FilterEnum;
+                        });
+                      }
                     },
-                    itemBuilder: (context) => [
-                      for (SortEnum sort in SortEnum.values)
-                        PopupMenuItem(
-                            value: sort, child: Text(sort.displayName))
-                    ],
-                    child: TextButton.icon(
-                      onPressed: null,
-                      label: const Text(
-                        'Ordenar por:',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      icon: Icon(
-                        ascending == true
-                            ? Icons.arrow_upward
-                            : Icons.arrow_downward,
-                        color: Colors.black,
-                      ),
-                      iconAlignment: IconAlignment.end,
-                    ),
-                  ),                  
+                    filterByCategory: filterByCategory,
+                    filterByStreamingService: filterByStreamingService,
+                    filterByAccessMode: filterByAccessMode,
+                    onSelectedByEnum: onSelectedByEnum,
+                  )
                 ],
               ),
               Text(AppLocalizations.of(context)!.completedTitles(
@@ -226,6 +223,25 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void onSelectedByEnum(Enum valueEnum, FilterEnum value) {
+    setState(() {
+      filter = value;
+      switch (valueEnum) {
+        case CategoryEnum _:
+          filterByCategory = valueEnum;
+          break;
+        case StreamingEnum _:
+          filterByStreamingService = valueEnum;
+          break;
+        case AccessEnum _:
+          filterByAccessMode = valueEnum;
+          break;
+        case _:
+          break;
+      }
+    });
   }
 
   void onDelete(Todo todo) {

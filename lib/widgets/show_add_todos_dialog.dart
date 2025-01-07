@@ -231,7 +231,10 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: StreamingEnum.values.map((streaming) {
+                          children: StreamingEnum.values
+                              .where((streaming) =>
+                                  streaming != StreamingEnum.absent)
+                              .map((streaming) {
                             final bool isSelected = _toDoController['streaming']
                                 .any((entry) =>
                                     entry.streamingService == streaming);

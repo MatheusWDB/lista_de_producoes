@@ -1,5 +1,5 @@
 enum CategoryEnum {
-  absent('Selecione o tipo'),
+  absent('Selecione a categoria'),
   anime('Anime'),
   cartoon('Desenho Animado'),
   documentary('Documentário'),

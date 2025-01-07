@@ -1,4 +1,5 @@
 enum StreamingEnum {
+  absent('Selecione o streaming'),
   apple('Apple TV+'),
   crunchy('Crunchyroll'),
   disney('Disney+'),
@@ -11,7 +12,7 @@ enum StreamingEnum {
   sbt('SBT+'),
   telecine('Telecine'),
   youtube('YouTube'),
-  piracy('Pirataria');
+  piracy('Outro');
 
   final String displayName;
 

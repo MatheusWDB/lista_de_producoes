@@ -1,10 +1,10 @@
 enum FilterEnum {
-  all('Todos'),
+  all('Tudo'),
   watched('Assistidos'),
   unwatched('Não Assistidos'),
-  category('Categori:'),
-  streaming('Serviço e Streaming:'),
-  access('Modo de Acesso:');
+  category('Categoria'),
+  streaming('Streaming'),
+  access('Modo de Acesso');
 
   final String displayName;
 
