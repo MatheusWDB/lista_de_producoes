@@ -26,6 +26,8 @@ class PopupMenuFiltering extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
+      shadowColor: Colors.blueAccent,
+      elevation: 5,
       requestFocus: true,
       offset: const Offset(0, 45),
       initialValue: filter,
@@ -36,98 +38,14 @@ class PopupMenuFiltering extends StatelessWidget {
       itemBuilder: (context) {
         return FilterEnum.values.map((value) {
           if (value == FilterEnum.category) {
-            return PopupMenuItem(
-              value: value,
-              child: Container(
-                height: 20,
-                constraints: const BoxConstraints(
-                  minWidth: double.infinity,
-                ),
-                child: PopupMenuButton(
-                  constraints: BoxConstraints(
-                    maxWidth: double.infinity,
-                    maxHeight: MediaQuery.of(context).size.height * 0.5,
-                  ),
-                  offset: const Offset(-181, -14),
-                  requestFocus: true,
-                  initialValue: filterByCategory,
-                  itemBuilder: (context) {
-                    return CategoryEnum.values.map((category) {
-                      return PopupMenuItem(
-                        value: category,
-                        child: Text(category.displayName),
-                      );
-                    }).toList();
-                  },
-                  onSelected: (valueEnum) {
-                    onSelectedByEnum(valueEnum, value);
-                    Navigator.pop(context);
-                  },
-                  child: Text(value.displayName),
-                ),
-              ),
-            );
+            return subMenu(
+                value, context, 0, CategoryEnum.values, filterByCategory);
           } else if (value == FilterEnum.streaming) {
-            return PopupMenuItem(
-              value: value,
-              child: Container(
-                constraints: const BoxConstraints(
-                  minWidth: double.infinity,
-                ),
-                child: PopupMenuButton(
-                  constraints: BoxConstraints(
-                    maxWidth: double.infinity, // Largura mínima possível
-                    maxHeight: MediaQuery.of(context).size.height * 0.5,
-                  ),
-                  offset: const Offset(-181, -13.9),
-                  requestFocus: true,
-                  initialValue: filterByStreamingService,
-                  itemBuilder: (context) {
-                    return StreamingEnum.values.map((streaming) {
-                      return PopupMenuItem(
-                        value: streaming,
-                        child: Text(streaming.displayName),
-                      );
-                    }).toList();
-                  },
-                  onSelected: (valueEnum) {
-                    onSelectedByEnum(valueEnum, value);
-                    Navigator.pop(context);
-                  },
-                  child: Text(value.displayName),
-                ),
-              ),
-            );
+            return subMenu(value, context, 0, StreamingEnum.values,
+                filterByStreamingService);
           } else if (value == FilterEnum.access) {
-            return PopupMenuItem(
-              value: value,
-              child: Container(
-                constraints: const BoxConstraints(
-                  minWidth: double.infinity,
-                ),
-                child: PopupMenuButton(
-                  constraints: const BoxConstraints(
-                    maxWidth: double.infinity, // Largura mínima possível
-                  ),
-                  offset: const Offset(-181, -22),
-                  requestFocus: true,
-                  initialValue: filterByAccessMode,
-                  itemBuilder: (context) {
-                    return AccessEnum.values.map((access) {
-                      return PopupMenuItem(
-                        value: access,
-                        child: Text(access.displayName),
-                      );
-                    }).toList();
-                  },
-                  onSelected: (valueEnum) {
-                    onSelectedByEnum(valueEnum, value);
-                    Navigator.pop(context);
-                  },
-                  child: Text(value.displayName),
-                ),
-              ),
-            );
+            return subMenu(
+                value, context, -8, AccessEnum.values, filterByAccessMode);
           } else {
             return PopupMenuItem(
               value: value,
@@ -149,6 +67,45 @@ class PopupMenuFiltering extends StatelessWidget {
           ),
         ),
         iconAlignment: IconAlignment.end,
+      ),
+    );
+  }
+
+  PopupMenuItem subMenu(FilterEnum value, BuildContext context, double offsetY,
+      List<dynamic> enumValues, Enum initialValue) {
+    return PopupMenuItem(
+      padding: EdgeInsets.zero,
+      value: value,
+      child: PopupMenuButton(
+        shadowColor: Colors.blueAccent,
+        elevation: 5,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.5,
+        ),
+        offset: Offset(-168, offsetY),
+        requestFocus: true,
+        initialValue: initialValue,
+        itemBuilder: (context) {
+          return enumValues.map((e) {
+            return PopupMenuItem<Enum>(
+              value: e,
+              child: Text(e.displayName),
+            );
+          }).toList();
+        },
+        onSelected: (valueEnum) {
+          onSelectedByEnum(valueEnum, value);
+          Navigator.pop(context);
+        },
+        child: Container(
+          margin: const EdgeInsets.only(left: 12),
+          alignment: Alignment.centerLeft,
+          width: double.infinity,
+          height: 48,
+          child: Text(
+            value.displayName,
+          ),
+        ),
       ),
     );
   }

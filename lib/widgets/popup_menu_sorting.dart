@@ -16,6 +16,8 @@ class PopupMenuSorting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
+      shadowColor: Colors.blueAccent,
+      elevation: 5,
       requestFocus: true,
       offset: const Offset(0, 45),
       initialValue: sort,
