@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 246, 249, 255),
+        backgroundColor: const Color.fromARGB(255, 220, 232, 255),
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.homePageTitle),
           backgroundColor: Colors.blueAccent,
@@ -107,53 +107,67 @@ class _HomePageState extends State<HomePage> {
             fontSize: 25.0,
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            spacing: 12.0,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  PopupMenuSorting(
-                      sort: sort,
-                      ascending: ascending,
-                      onSelected: (value) {
-                        setState(() {
-                          if (sort == value) {
-                            ascending = !ascending;
-                            return;
-                          }
-                          ascending == false ? ascending = true : null;
-                          sort = value as SortEnum;
-                        });
-                      }),
-                  PopupMenuFiltering(
-                    filter: filter,
-                    onSelected: (value) {
-                      if (value != FilterEnum.category &&
-                          value != FilterEnum.streaming &&
-                          value != FilterEnum.access) {
-                        setState(() {
-                          filter = value as FilterEnum;
-                        });
-                      }
-                    },
-                    filterByCategory: filterByCategory,
-                    filterByStreamingService: filterByStreamingService,
-                    filterByAccessMode: filterByAccessMode,
-                    onSelectedByEnum: onSelectedByEnum,
-                  )
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 3),
+              height: 70.0,
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 236, 241, 252),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
+                boxShadow: [
+                  BoxShadow(blurRadius: 5),
                 ],
               ),
-              Text(AppLocalizations.of(context)!.completedTitles(
-                  _toDoList.where((todo) => todo.watched == true).length,
-                  _toDoList.length)),
-              Expanded(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      PopupMenuSorting(
+                          sort: sort,
+                          ascending: ascending,
+                          onSelected: (value) {
+                            setState(() {
+                              if (sort == value) {
+                                ascending = !ascending;
+                                return;
+                              }
+                              ascending == false ? ascending = true : null;
+                              sort = value as SortEnum;
+                            });
+                          }),
+                      PopupMenuFiltering(
+                        filter: filter,
+                        onSelected: (value) {
+                          if (value != FilterEnum.category &&
+                              value != FilterEnum.streaming &&
+                              value != FilterEnum.access) {
+                            setState(() {
+                              filter = value as FilterEnum;
+                            });
+                          }
+                        },
+                        filterByCategory: filterByCategory,
+                        filterByStreamingService: filterByStreamingService,
+                        filterByAccessMode: filterByAccessMode,
+                        onSelectedByEnum: onSelectedByEnum,
+                      )
+                    ],
+                  ),
+                  Text(AppLocalizations.of(context)!.completedTitles(
+                      _toDoList.where((todo) => todo.watched == true).length,
+                      _toDoList.length)),
+                ],
+              ),
+            ),
+            Flexible(
+              fit: FlexFit.tight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 220, 232, 255),
-                    borderRadius: BorderRadius.circular(8.0),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 220, 232, 255),
                   ),
                   child: RefreshIndicator(
                     onRefresh: _refresh,
@@ -185,7 +199,17 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Row(
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 3),
+              height: 70.0,
+              decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 236, 241, 252),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  boxShadow: [
+                    BoxShadow(blurRadius: 5),
+                  ]),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
@@ -218,8 +242,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -369,6 +393,12 @@ class _HomePageState extends State<HomePage> {
   Future<Null> _refresh() async {
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
+      filter = FilterEnum.all;
+      sort = SortEnum.date;
+      ascending = true;
+      filterByCategory = CategoryEnum.absent;
+      filterByStreamingService = StreamingEnum.absent;
+      filterByAccessMode = AccessEnum.absent;
       readData();
     });
     return null;

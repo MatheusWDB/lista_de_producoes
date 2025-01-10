@@ -39,13 +39,13 @@ class PopupMenuFiltering extends StatelessWidget {
         return FilterEnum.values.map((value) {
           if (value == FilterEnum.category) {
             return subMenu(
-                value, context, 0, CategoryEnum.values, filterByCategory);
+                value, context, -168, 0, CategoryEnum.values, filterByCategory);
           } else if (value == FilterEnum.streaming) {
-            return subMenu(value, context, 0, StreamingEnum.values,
+            return subMenu(value, context, -112, 0, StreamingEnum.values,
                 filterByStreamingService);
           } else if (value == FilterEnum.access) {
-            return subMenu(
-                value, context, -8, AccessEnum.values, filterByAccessMode);
+            return subMenu(value, context, -168, -8, AccessEnum.values,
+                filterByAccessMode);
           } else {
             return PopupMenuItem(
               value: value,
@@ -71,8 +71,8 @@ class PopupMenuFiltering extends StatelessWidget {
     );
   }
 
-  PopupMenuItem subMenu(FilterEnum value, BuildContext context, double offsetY,
-      List<dynamic> enumValues, Enum initialValue) {
+  PopupMenuItem subMenu(FilterEnum value, BuildContext context, double offsetX,
+      double offsetY, List<dynamic> enumValues, Enum initialValue) {
     return PopupMenuItem(
       padding: EdgeInsets.zero,
       value: value,
@@ -82,11 +82,11 @@ class PopupMenuFiltering extends StatelessWidget {
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.5,
         ),
-        offset: Offset(-168, offsetY),
+        offset: Offset(offsetX, offsetY),
         requestFocus: true,
         initialValue: initialValue,
         itemBuilder: (context) {
-          return enumValues.map((e) {
+          return enumValues.where((e) => enumValues.indexOf(e) != 0).map((e) {
             return PopupMenuItem<Enum>(
               value: e,
               child: Text(e.displayName),

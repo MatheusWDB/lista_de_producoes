@@ -41,86 +41,90 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     return AlertDialog(
       title: Text(AppLocalizations.of(context)!.newTitle),
       titleTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 28),
-      content: Column(
-        spacing: 8.0,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _toDoController['title'],
-            cursorColor: Colors.blueAccent,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.title,
-              errorText: error['title'],
-              labelStyle: const TextStyle(
-                color: Colors.blueAccent,
-              ),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
+      content: Container(
+        constraints: const BoxConstraints(maxWidth: 0),
+        child: Column(
+          spacing: 8.0,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _toDoController['title'],
+              cursorColor: Colors.blueAccent,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                labelText: AppLocalizations.of(context)!.title,
+                errorText: error['title'],
+                labelStyle: const TextStyle(
                   color: Colors.blueAccent,
                 ),
-              ),
-            ),
-            onChanged: (value) {
-              setState(() {
-                error['title'] = null;
-              });
-            },
-          ),
-          SingleChildScrollView(
-            child: DropdownMenu(
-              errorText: error['category'],
-              initialSelection: _toDoController['category'],
-              menuHeight: MediaQuery.of(context).size.height * 0.44,
-              dropdownMenuEntries: CategoryEnum.values.map((category) {
-                return DropdownMenuEntry(
-                  value: category,
-                  label: category.displayName,
-                );
-              }).toList(),
-              onSelected: (newValue) {
-                _toDoController['category'] = newValue;
-                if (newValue != CategoryEnum.absent) {
-                  setState(() {
-                    error['category'] = null;
-                  });
-                }
-              },
-            ),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  side: error['streamingAccess'] == null
-                      ? null
-                      : const BorderSide(
-                          color: Colors.red, // Espessura da borda
-                        ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    error['streamingService'] = null;
-                  });
-                  _showStreamingAccessDialog(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.availableOn,
-                  style: const TextStyle(color: Colors.blueAccent),
-                ),
-              ),
-              if (error['streamingService'] != null) ...[
-                Text(
-                  error['streamingService']!,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent,
                   ),
                 ),
-              ]
-            ],
-          ),
-        ],
+              ),
+              onChanged: (value) {
+                setState(() {
+                  error['title'] = null;
+                });
+              },
+            ),
+            SingleChildScrollView(
+              child: DropdownMenu(
+                errorText: error['category'],
+                initialSelection: _toDoController['category'],
+                menuHeight: MediaQuery.of(context).size.height * 0.44,
+                dropdownMenuEntries: CategoryEnum.values.map((category) {
+                  return DropdownMenuEntry(
+                    value: category,
+                    label: category.displayName,
+                  );
+                }).toList(),
+                onSelected: (newValue) {
+                  _toDoController['category'] = newValue;
+                  if (newValue != CategoryEnum.absent) {
+                    setState(() {
+                      error['category'] = null;
+                    });
+                  }
+                },
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    side: error['streamingAccess'] == null
+                        ? null
+                        : const BorderSide(
+                            color: Colors.red, // Espessura da borda
+                          ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      error['streamingService'] = null;
+                    });
+                    _showStreamingAccessDialog(context);
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.availableOn,
+                    style: const TextStyle(color: Colors.blueAccent),
+                  ),
+                ),
+                if (error['streamingService'] != null) ...[
+                  Text(
+                    error['streamingService']!,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ]
+              ],
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
