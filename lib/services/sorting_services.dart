@@ -1,30 +1,30 @@
-import 'package:todo_list_2/models/todo.dart';
+import 'package:list_of_productions/models/production.dart';
 
 class SortingServices {
-  List<Todo> dateOfCreationAscending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => a.date.compareTo(b.date));
-    return toDoList;
+  List<Production> dateOfCreationAscending(List<Production> productionList) {
+    productionList.sort((a, b) => a.date.compareTo(b.date));
+    return productionList;
   }
 
-  List<Todo> dateOfCreationDescending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => b.date.compareTo(a.date));
-    return toDoList;
+  List<Production> dateOfCreationDescending(List<Production> productionList) {
+    productionList.sort((a, b) => b.date.compareTo(a.date));
+    return productionList;
   }
 
-  List<Todo> alphabeticalOrderAscending(List<Todo> toDoList) {
-    toDoList
+  List<Production> alphabeticalOrderAscending(List<Production> productionList) {
+    productionList
         .sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> alphabeticalOrderDescending(List<Todo> toDoList) {
-    toDoList
+  List<Production> alphabeticalOrderDescending(List<Production> productionList) {
+    productionList
         .sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> watched(List<Todo> toDoList) {
-    toDoList.sort((a, b) {
+  List<Production> watched(List<Production> productionList) {
+    productionList.sort((a, b) {
       if (!a.watched && b.watched) {
         return 1;
       } else if (a.watched && !b.watched) {
@@ -33,11 +33,11 @@ class SortingServices {
         return a.title.toLowerCase().compareTo(b.title.toLowerCase());
       }
     });
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> unwatched(List<Todo> toDoList) {
-    toDoList.sort((a, b) {
+  List<Production> unwatched(List<Production> productionList) {
+    productionList.sort((a, b) {
       if (a.watched && !b.watched) {
         return 1;
       } else if (!a.watched && b.watched) {
@@ -46,56 +46,56 @@ class SortingServices {
         return a.title.toLowerCase().compareTo(b.title.toLowerCase());
       }
     });
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> categoryAscending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => a.category
+  List<Production> categoryAscending(List<Production> productionList) {
+    productionList.sort((a, b) => a.category
         .toString()
         .toLowerCase()
         .compareTo(b.category.toString().toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> categoryDescending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => b.category
+  List<Production> categoryDescending(List<Production> productionList) {
+    productionList.sort((a, b) => b.category
         .toString()
         .toLowerCase()
         .compareTo(a.category.toString().toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> streamingServiceAscending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => a.streaming.first
+  List<Production> streamingServiceAscending(List<Production> productionList) {
+    productionList.sort((a, b) => a.streaming.first
         .toString()
         .toLowerCase()
         .compareTo(b.streaming.first.toString().toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> streamingServiceDescending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => b.streaming.first
+  List<Production> streamingServiceDescending(List<Production> productionList) {
+    productionList.sort((a, b) => b.streaming.first
         .toString()
         .toLowerCase()
         .compareTo(a.streaming.first.toString().toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> accessModeAscending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => a.streaming.first
+  List<Production> accessModeAscending(List<Production> productionList) {
+    productionList.sort((a, b) => a.streaming.first
         .toString()
         .split(' - ')[1]
         .toLowerCase()
         .compareTo(b.streaming.first.toString().split(' - ')[1].toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 
-  List<Todo> accessModeDescending(List<Todo> toDoList) {
-    toDoList.sort((a, b) => b.streaming.first
+  List<Production> accessModeDescending(List<Production> productionList) {
+    productionList.sort((a, b) => b.streaming.first
         .toString()
         .split(' - ')[1]
         .toLowerCase()
         .compareTo(a.streaming.first.toString().split(' - ')[1].toLowerCase()));
-    return toDoList;
+    return productionList;
   }
 }

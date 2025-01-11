@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list_2/enums/sort_enum.dart';
+import 'package:list_of_productions/enums/sort_enum.dart';
 
 class PopupMenuSorting extends StatelessWidget {
   const PopupMenuSorting({
@@ -26,14 +26,14 @@ class PopupMenuSorting extends StatelessWidget {
         return SortEnum.values.map((sort) {
           return PopupMenuItem<SortEnum>(
             value: sort,
-            child: Text(sort.displayName),
+            child: Text(sort.displayNameTranslate(context)),
           );
         }).toList();
       },
       child: TextButton.icon(
         onPressed: null,
         label: Text(
-          sort.displayName,
+          sort.displayNameTranslate(context),
           style: const TextStyle(color: Colors.black),
         ),
         icon: Icon(

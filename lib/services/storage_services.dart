@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:todo_list_2/models/todo.dart';
+import 'package:list_of_productions/models/production.dart';
 
 class StorageServices {
   Future<File?> getFile() async {
@@ -14,8 +14,8 @@ class StorageServices {
     }
   }
 
-  Future<File> saveData(List<Todo> toDoList) async {
-    String data = json.encode(toDoList);
+  Future<File> saveData(List<Production> productionList) async {
+    String data = json.encode(productionList);
     final file = await getFile();
     return file!.writeAsString(data);
   }

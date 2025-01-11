@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:todo_list_2/enums/access_enum.dart';
-import 'package:todo_list_2/enums/streaming_enum.dart';
-import 'package:todo_list_2/enums/category_enum.dart';
-import 'package:todo_list_2/models/streaming.dart';
-import 'package:todo_list_2/models/todo.dart';
-import 'package:todo_list_2/services/storage_services.dart';
+import 'package:list_of_productions/enums/access_enum.dart';
+import 'package:list_of_productions/enums/category_enum.dart';
+import 'package:list_of_productions/enums/streaming_enum.dart';
+import 'package:list_of_productions/models/streaming.dart';
+import 'package:list_of_productions/models/production.dart';
+import 'package:list_of_productions/services/storage_services.dart';
 
-class ShowAddTodosDialog extends StatefulWidget {
-  final List<Todo> toDoList;
-  final VoidCallback onToDoListUpdated;
-  final Locale myLocale;
+class UpdateList extends StatefulWidget {
+  const UpdateList({
+    super.key,
+    required this.production,
+    required this.productionList,
+    required this.readListOfProductions,
+  });
 
-  const ShowAddTodosDialog(
-      {super.key,
-      required this.toDoList,
-      required this.onToDoListUpdated,
-      required this.myLocale});
-
+  final Production production;
+  final List<Production> productionList;
+  final VoidCallback readListOfProductions;
   @override
-  State<ShowAddTodosDialog> createState() => _ShowAddTodosDialogState();
+  State<UpdateList> createState() => _UpdateListState();
 }
 
-class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
-  final Map<String, dynamic> _toDoController = {
-    'title': TextEditingController(),
-    'category': CategoryEnum.absent,
-    'streaming': <Streaming>[]
+class _UpdateListState extends State<UpdateList> {
+  final storageServices = StorageServices();
+  late Production production;
+
+  late final Map<String, dynamic> productionController = {
+    'title': TextEditingController(text: production.title),
+    'category': production.category,
+    'streaming': production.streaming
   };
 
   final Map<String, dynamic> error = {
@@ -37,10 +40,64 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    production = widget.production;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(AppLocalizations.of(context)!.newTitle),
+      title: const Text('Editar Título...'),
       titleTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 28),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            resetProductionController();
+            resetError();
+          },
+          child: Text(
+            AppLocalizations.of(context)!.cancel,
+            style: const TextStyle(
+              color: Colors.redAccent,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            if (productionController['title'].text.isEmpty) {
+              setState(() {
+                error['title'] = AppLocalizations.of(context)!.requiredField;
+              });
+              return;
+            }
+            if (productionController['category'] == CategoryEnum.absent) {
+              setState(() {
+                error['category'] = AppLocalizations.of(context)!.required;
+              });
+              return;
+            }
+            if (productionController['streaming'].isEmpty ||
+                productionController['streaming']
+                    .any((e) => e.accessMode == AccessEnum.absent)) {
+              setState(() {
+                error['streamingService'] =
+                    AppLocalizations.of(context)!.required;
+              });
+              return;
+            }
+            saveProduction();
+            Navigator.of(context).pop();
+          },
+          child: const Text(
+            'Salvar',
+            style: TextStyle(
+              color: Colors.blueAccent,
+            ),
+          ),
+        ),
+      ],
       content: Container(
         constraints: const BoxConstraints(maxWidth: 0),
         child: Column(
@@ -48,7 +105,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: _toDoController['title'],
+              controller: productionController['title'],
               cursorColor: Colors.blueAccent,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -72,16 +129,16 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
             SingleChildScrollView(
               child: DropdownMenu(
                 errorText: error['category'],
-                initialSelection: _toDoController['category'],
+                initialSelection: productionController['category'],
                 menuHeight: MediaQuery.of(context).size.height * 0.44,
                 dropdownMenuEntries: CategoryEnum.values.map((category) {
                   return DropdownMenuEntry(
                     value: category,
-                    label: category.displayName,
+                    label: category.displayNameTranslate(context),
                   );
                 }).toList(),
                 onSelected: (newValue) {
-                  _toDoController['category'] = newValue;
+                  productionController['category'] = newValue;
                   if (newValue != CategoryEnum.absent) {
                     setState(() {
                       error['category'] = null;
@@ -98,14 +155,14 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                     side: error['streamingAccess'] == null
                         ? null
                         : const BorderSide(
-                            color: Colors.red, // Espessura da borda
+                            color: Colors.red,
                           ),
                   ),
                   onPressed: () {
                     setState(() {
                       error['streamingService'] = null;
                     });
-                    _showStreamingAccessDialog(context);
+                    showStreamingAccessDialog(context);
                   },
                   child: Text(
                     AppLocalizations.of(context)!.availableOn,
@@ -126,84 +183,35 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            resetTodoController();
-            resetError();
-          },
-          child: Text(
-            AppLocalizations.of(context)!.cancel,
-            style: const TextStyle(
-              color: Colors.redAccent,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            if (_toDoController['title'].text.isEmpty) {
-              setState(() {
-                error['title'] = AppLocalizations.of(context)!.requiredField;
-              });
-
-              return;
-            }
-            if (_toDoController['category'] == CategoryEnum.absent) {
-              setState(() {
-                error['category'] = AppLocalizations.of(context)!.required;
-              });
-
-              return;
-            }
-            if (_toDoController['streaming'].isEmpty ||
-                _toDoController['streaming']
-                    .any((e) => e.accessMode == AccessEnum.absent)) {
-              setState(() {
-                error['streamingService'] =
-                    AppLocalizations.of(context)!.required;
-              });
-
-              return;
-            }
-            _addToDo();
-            Navigator.of(context).pop();
-          },
-          child: Text(
-            AppLocalizations.of(context)!.add,
-            style: const TextStyle(
-              color: Colors.blueAccent,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
-  void _addToDo() {
-    List<Streaming> streaming = _toDoController['streaming'];
+  void saveProduction() {
+    List<Streaming> streaming = productionController['streaming'];
 
-    streaming.sort((a, b) => a.streamingService.displayName
-        .compareTo(b.streamingService.displayName));
+    streaming.sort((a, b) => a.streamingService
+        .displayNameTranslate(context)
+        .compareTo(b.streamingService.displayNameTranslate(context)));
 
-    Todo newToDo = Todo(
-      title: _toDoController['title'].text,
-      date: DateTime.now().toLocal(),
-      category: _toDoController['category'],
+    Production newProduction = Production(
+      title: productionController['title'].text,
+      date: production.date,
+      category: productionController['category'],
       streaming: streaming,
     );
 
-    widget.toDoList.add(newToDo);
-    StorageServices().saveData(widget.toDoList);
-    widget.onToDoListUpdated();
-    resetTodoController();
+    final int index = widget.productionList.indexOf(production);
+    widget.productionList[index] = newProduction;
+    storageServices.saveData(widget.productionList);
+    widget.readListOfProductions();
+    resetProductionController();
     resetError();
   }
 
-  void resetTodoController() {
-    _toDoController['title']!.clear();
-    _toDoController['category'] = CategoryEnum.absent;
-    _toDoController['streaming'].clear();
+  void resetProductionController() {
+    productionController['title']!.clear();
+    productionController['category'] = CategoryEnum.absent;
+    productionController['streaming'].clear();
   }
 
   void resetError() {
@@ -213,7 +221,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
     error['accessMode'].clear();
   }
 
-  void _showStreamingAccessDialog(BuildContext context) {
+  void showStreamingAccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -239,10 +247,10 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                               .where((streaming) =>
                                   streaming != StreamingEnum.absent)
                               .map((streaming) {
-                            final bool isSelected = _toDoController['streaming']
-                                .any((entry) =>
+                            final bool isSelected =
+                                productionController['streaming'].any((entry) =>
                                     entry.streamingService == streaming);
-                            final int index = _toDoController['streaming']
+                            final int index = productionController['streaming']
                                 .indexWhere((entry) =>
                                     entry.streamingService == streaming);
                             error['accessMode'].add(null);
@@ -256,20 +264,21 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                                   child: Column(
                                     children: [
                                       CheckboxListTile(
-                                        title: Text(streaming.displayName),
+                                        title: Text(streaming
+                                            .displayNameTranslate(context)),
                                         value: isSelected,
                                         onChanged: (selected) {
                                           setState(() {
                                             if (selected == true) {
-                                              _toDoController['streaming'].add(
-                                                  Streaming(
+                                              productionController['streaming']
+                                                  .add(Streaming(
                                                       streamingService:
                                                           streaming,
                                                       accessMode:
                                                           AccessEnum.absent));
                                               error['streamingService'] = null;
                                             } else {
-                                              _toDoController['streaming']
+                                              productionController['streaming']
                                                   .removeAt(index);
                                             }
                                           });
@@ -283,12 +292,14 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                                               AccessEnum.values.map((access) {
                                             return DropdownMenuEntry(
                                               value: access,
-                                              label: access.displayName,
+                                              label:
+                                                  access.displayNameTranslate(
+                                                      context),
                                             );
                                           }).toList(),
                                           onSelected: (newValue) {
                                             setState(() {
-                                              _toDoController['streaming']
+                                              productionController['streaming']
                                                   [index] = Streaming(
                                                 streamingService: streaming,
                                                 accessMode: newValue,
@@ -323,7 +334,7 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _toDoController['streaming'].clear();
+                    productionController['streaming'].clear();
                     resetError();
                   },
                   child: Text(
@@ -335,18 +346,20 @@ class _ShowAddTodosDialogState extends State<ShowAddTodosDialog> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (_toDoController['streaming'].isEmpty) {
+                    if (productionController['streaming'].isEmpty) {
                       setState(() {
                         error['streamingService'] =
                             AppLocalizations.of(context)!.chooseAtLeastOne;
                       });
                       return;
                     }
+
                     int errors = 0;
 
-                    for (Streaming element in _toDoController['streaming']) {
+                    for (Streaming element
+                        in productionController['streaming']) {
                       final int index =
-                          _toDoController['streaming'].indexOf(element);
+                          productionController['streaming'].indexOf(element);
 
                       if (element.accessMode == AccessEnum.absent) {
                         setState(() {

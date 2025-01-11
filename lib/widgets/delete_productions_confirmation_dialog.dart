@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
-class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
-  const ShowDeleteTodosConfirmationDialog({
+class DeleteProductionsConfirmationDialog extends StatelessWidget {
+  const DeleteProductionsConfirmationDialog({
     super.key,
     required this.context,
-    required this.deleteAllTodos,
+    required this.deleteAllProductions,
     required this.myLocale,
   });
 
   final BuildContext context;
-  final Function deleteAllTodos;
+  final Function deleteAllProductions;
   final Locale myLocale;
 
   @override
@@ -34,7 +34,7 @@ class ShowDeleteTodosConfirmationDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            deleteAllTodos();
+            deleteAllProductions();
           },
           style: TextButton.styleFrom(
             foregroundColor: Colors.red,

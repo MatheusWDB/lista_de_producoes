@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list_2/enums/access_enum.dart';
-import 'package:todo_list_2/enums/category_enum.dart';
-import 'package:todo_list_2/enums/filter_enum.dart';
-import 'package:todo_list_2/enums/streaming_enum.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:list_of_productions/enums/access_enum.dart';
+import 'package:list_of_productions/enums/category_enum.dart';
+import 'package:list_of_productions/enums/filter_enum.dart';
+import 'package:list_of_productions/enums/streaming_enum.dart';
 
 class PopupMenuFiltering extends StatelessWidget {
   final FilterEnum filter;
@@ -53,7 +54,18 @@ class PopupMenuFiltering extends StatelessWidget {
                   constraints: const BoxConstraints(
                     minWidth: double.infinity,
                   ),
-                  child: Text(value.displayName)),
+                  child: Text(switch (value) {
+                    FilterEnum.all => AppLocalizations.of(context)!.all,
+                    FilterEnum.watched => AppLocalizations.of(context)!.watched,
+                    FilterEnum.unwatched =>
+                      AppLocalizations.of(context)!.unwatched,
+                    FilterEnum.category =>
+                      AppLocalizations.of(context)!.category,
+                    FilterEnum.streaming =>
+                      AppLocalizations.of(context)!.streaming,
+                    FilterEnum.access =>
+                      AppLocalizations.of(context)!.accessMode,
+                  })),
             );
           }
         }).toList();
@@ -61,7 +73,7 @@ class PopupMenuFiltering extends StatelessWidget {
       child: TextButton.icon(
         onPressed: null,
         label: Text(
-          'Filtrar por: ${filter.displayName}',
+          'Filtrar por: ${filter.displayNameTranslate(context)}',
           style: const TextStyle(
             color: Colors.black,
           ),
@@ -86,10 +98,10 @@ class PopupMenuFiltering extends StatelessWidget {
         requestFocus: true,
         initialValue: initialValue,
         itemBuilder: (context) {
-          return enumValues.where((e) => enumValues.indexOf(e) != 0).map((e) {
+          return enumValues.where((e) => e != enumValues.first).map((e) {
             return PopupMenuItem<Enum>(
               value: e,
-              child: Text(e.displayName),
+              child: Text(e.displayNameTranslate(context)),
             );
           }).toList();
         },
@@ -103,7 +115,7 @@ class PopupMenuFiltering extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: Text(
-            value.displayName,
+            value.displayNameTranslate(context),
           ),
         ),
       ),

@@ -1,8 +1,8 @@
-import 'package:todo_list_2/enums/category_enum.dart';
-import 'package:todo_list_2/enums/genre_enum.dart';
-import 'package:todo_list_2/models/streaming.dart';
+import 'package:list_of_productions/enums/category_enum.dart';
+import 'package:list_of_productions/enums/genre_enum.dart';
+import 'package:list_of_productions/models/streaming.dart';
 
-class Todo {
+class Production {
   String title;
   CategoryEnum category;
   List<GenreEnum> genre;
@@ -11,7 +11,7 @@ class Todo {
   DateTime date;
   bool isDeleted;
 
-  Todo({
+  Production({
     required this.title,
     required this.category,
     this.genre = const [],
@@ -33,8 +33,8 @@ class Todo {
     };
   }
 
-  factory Todo.fromJson(Map<String, dynamic> json) {
-    return Todo(
+  factory Production.fromJson(Map<String, dynamic> json) {
+    return Production(
       title: json['title'],
       category: CategoryEnum.values
           .firstWhere((e) => e.displayName == json['category']),

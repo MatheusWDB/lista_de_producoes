@@ -2,20 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:todo_list_2/enums/access_enum.dart';
-import 'package:todo_list_2/enums/category_enum.dart';
-import 'package:todo_list_2/enums/filter_enum.dart';
-import 'package:todo_list_2/enums/sort_enum.dart';
-import 'package:todo_list_2/enums/streaming_enum.dart';
-import 'package:todo_list_2/models/todo.dart';
-import 'package:todo_list_2/services/filtering_services.dart';
-import 'package:todo_list_2/services/sorting_services.dart';
-import 'package:todo_list_2/services/storage_services.dart';
-import 'package:todo_list_2/widgets/popup_menu_filtering.dart';
-import 'package:todo_list_2/widgets/popup_menu_sorting.dart';
-import 'package:todo_list_2/widgets/show_add_todos_dialog.dart';
-import 'package:todo_list_2/widgets/show_delete_todos_confirmation_dialog.dart';
-import 'package:todo_list_2/widgets/todo_item.dart';
+import 'package:list_of_productions/enums/access_enum.dart';
+import 'package:list_of_productions/enums/category_enum.dart';
+import 'package:list_of_productions/enums/filter_enum.dart';
+import 'package:list_of_productions/enums/sort_enum.dart';
+import 'package:list_of_productions/enums/streaming_enum.dart';
+import 'package:list_of_productions/models/production.dart';
+import 'package:list_of_productions/services/filtering_services.dart';
+import 'package:list_of_productions/services/sorting_services.dart';
+import 'package:list_of_productions/services/storage_services.dart';
+import 'package:list_of_productions/widgets/popup_menu_filtering.dart';
+import 'package:list_of_productions/widgets/popup_menu_sorting.dart';
+import 'package:list_of_productions/widgets/add_production_dialog.dart';
+import 'package:list_of_productions/widgets/delete_productions_confirmation_dialog.dart';
+import 'package:list_of_productions/widgets/production_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   final FilteringServices filteringServices = FilteringServices();
 
   FilterEnum filter = FilterEnum.all;
-  SortEnum sort = SortEnum.date;
+  SortEnum sort = SortEnum.creationDate;
   bool ascending = true;
 
   CategoryEnum filterByCategory = CategoryEnum.absent;
@@ -42,10 +42,10 @@ class _HomePageState extends State<HomePage> {
     'filter': null,
   };
 
-  List<Todo> _toDoList = [];
+  List<Production> productionList = [];
 
-  Todo? _deletedTodo;
-  int? _deletedTodoIndex;
+  Production? deletedProduction;
+  int? deletedProductionIndex;
   late Locale myLocale;
 
   @override
@@ -60,39 +60,40 @@ class _HomePageState extends State<HomePage> {
       myLocale = Localizations.localeOf(context);
     });
 
-    List<Todo> renderedList = _toDoList;
+    List<Production> renderedList = productionList;
 
     renderedList = switch (sort) {
-      SortEnum.date => ascending == true
-          ? sortingServices.dateOfCreationAscending(_toDoList)
-          : sortingServices.dateOfCreationDescending(_toDoList),
+      SortEnum.creationDate => ascending == true
+          ? sortingServices.dateOfCreationAscending(productionList)
+          : sortingServices.dateOfCreationDescending(productionList),
       SortEnum.watched => ascending == true
-          ? sortingServices.watched(_toDoList)
-          : sortingServices.unwatched(_toDoList),
+          ? sortingServices.watched(productionList)
+          : sortingServices.unwatched(productionList),
       SortEnum.alphabeticalOrder => ascending == true
-          ? sortingServices.alphabeticalOrderAscending(_toDoList)
-          : sortingServices.alphabeticalOrderDescending(_toDoList),
+          ? sortingServices.alphabeticalOrderAscending(productionList)
+          : sortingServices.alphabeticalOrderDescending(productionList),
       SortEnum.category => ascending == true
-          ? sortingServices.categoryAscending(_toDoList)
-          : sortingServices.categoryDescending(_toDoList),
+          ? sortingServices.categoryAscending(productionList)
+          : sortingServices.categoryDescending(productionList),
       SortEnum.streaming => ascending == true
-          ? sortingServices.streamingServiceAscending(_toDoList)
-          : sortingServices.streamingServiceDescending(_toDoList),
+          ? sortingServices.streamingServiceAscending(productionList)
+          : sortingServices.streamingServiceDescending(productionList),
       SortEnum.access => ascending == true
-          ? sortingServices.accessModeAscending(_toDoList)
-          : sortingServices.accessModeDescending(_toDoList),
+          ? sortingServices.accessModeAscending(productionList)
+          : sortingServices.accessModeDescending(productionList),
     };
 
     renderedList = switch (filter) {
-      FilterEnum.all => _toDoList,
-      FilterEnum.watched => filteringServices.filterByWatched(_toDoList),
-      FilterEnum.unwatched => filteringServices.filterByUnwatched(_toDoList),
+      FilterEnum.all => productionList,
+      FilterEnum.watched => filteringServices.filterByWatched(productionList),
+      FilterEnum.unwatched =>
+        filteringServices.filterByUnwatched(productionList),
       FilterEnum.category =>
-        filteringServices.filterByCategory(_toDoList, filterByCategory),
+        filteringServices.filterByCategory(productionList, filterByCategory),
       FilterEnum.streaming => filteringServices.filterByStreamingService(
-          _toDoList, filterByStreamingService),
-      FilterEnum.access =>
-        filteringServices.filterByAccessMode(_toDoList, filterByAccessMode),
+          productionList, filterByStreamingService),
+      FilterEnum.access => filteringServices.filterByAccessMode(
+          productionList, filterByAccessMode),
     };
 
     return SafeArea(
@@ -156,8 +157,10 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   Text(AppLocalizations.of(context)!.completedTitles(
-                      _toDoList.where((todo) => todo.watched == true).length,
-                      _toDoList.length)),
+                      productionList
+                          .where((production) => production.watched == true)
+                          .length,
+                      productionList.length)),
                 ],
               ),
             ),
@@ -177,20 +180,25 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           spacing: 5.0,
                           children: [
-                            for (Todo todo in renderedList)
-                              TodoItem(
-                                todo: todo,
-                                toDoList: _toDoList,
+                            for (Production production in renderedList)
+                              ProductionItem(
+                                production: production,
+                                productionList: productionList,
                                 onChanged: (value) {
                                   setState(() {
-                                    _toDoList
+                                    productionList
                                         .firstWhere(
-                                            (element) => element == todo)
+                                            (element) => element == production)
                                         .watched = value!;
-                                    storageServices.saveData(_toDoList);
+                                    storageServices.saveData(productionList);
                                   });
                                 },
                                 onDelete: onDelete,
+                                readListOfProductions: () {
+                                  setState(() {
+                                    readData();
+                                  });
+                                },
                               ),
                           ],
                         )
@@ -213,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: showDeleteTodosConfirmationDialog,
+                    onPressed: showDeleteProductionsConfirmationDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       padding: const EdgeInsets.all(16),
@@ -227,7 +235,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: showAddTodosDialog,
+                    onPressed: showAddProductionDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       padding: const EdgeInsets.all(16),
@@ -268,20 +276,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void onDelete(Todo todo) {
-    _deletedTodo = todo;
-    _deletedTodoIndex = _toDoList.indexOf(todo);
+  void onDelete(Production production) {
+    deletedProduction = production;
+    deletedProductionIndex = productionList.indexOf(production);
 
     setState(() {
-      _toDoList.remove(todo);
-      storageServices.saveData(_toDoList);
+      productionList.remove(production);
+      storageServices.saveData(productionList);
     });
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          AppLocalizations.of(context)!.titleRemoved(todo.title),
+          AppLocalizations.of(context)!.titleRemoved(production.title),
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: Colors.black,
@@ -293,7 +301,8 @@ class _HomePageState extends State<HomePage> {
           label: AppLocalizations.of(context)!.undo,
           onPressed: () {
             setState(() {
-              _toDoList.insert(_deletedTodoIndex!, _deletedTodo!);
+              productionList.insert(
+                  deletedProductionIndex!, deletedProduction!);
               ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -310,7 +319,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             });
-            storageServices.saveData(_toDoList);
+            storageServices.saveData(productionList);
           },
           textColor: Colors.blueAccent,
         ),
@@ -319,12 +328,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void showAddTodosDialog() {
+  void showAddProductionDialog() {
     showDialog(
         context: context,
-        builder: (context) => ShowAddTodosDialog(
-              toDoList: _toDoList,
-              onToDoListUpdated: () {
+        builder: (context) => AddProductionDialog(
+              productionList: productionList,
+              readListOfProductions: () {
                 setState(() {
                   readData();
                 });
@@ -333,8 +342,8 @@ class _HomePageState extends State<HomePage> {
             ));
   }
 
-  void showDeleteTodosConfirmationDialog() {
-    if (_toDoList.isEmpty) {
+  void showDeleteProductionsConfirmationDialog() {
+    if (productionList.isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -361,9 +370,9 @@ class _HomePageState extends State<HomePage> {
 
     showDialog(
       context: context,
-      builder: (context) => ShowDeleteTodosConfirmationDialog(
+      builder: (context) => DeleteProductionsConfirmationDialog(
         context: context,
-        deleteAllTodos: deleteAllTodos,
+        deleteAllProductions: deleteAllProductions,
         myLocale: myLocale,
       ),
     );
@@ -376,17 +385,18 @@ class _HomePageState extends State<HomePage> {
           // Decodifica a string JSON para uma lista de mapas
           List<dynamic> decodedData = json.decode(data);
 
-          // Mapeia cada mapa para um objeto Todo
-          _toDoList = decodedData.map((item) => Todo.fromJson(item)).toList();
+          // Mapeia cada mapa para um objeto Production
+          productionList =
+              decodedData.map((item) => Production.fromJson(item)).toList();
         }
       });
     });
   }
 
-  void deleteAllTodos() {
+  void deleteAllProductions() {
     setState(() {
-      _toDoList.clear();
-      storageServices.saveData(_toDoList);
+      productionList.clear();
+      storageServices.saveData(productionList);
     });
   }
 
@@ -394,7 +404,7 @@ class _HomePageState extends State<HomePage> {
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       filter = FilterEnum.all;
-      sort = SortEnum.date;
+      sort = SortEnum.creationDate;
       ascending = true;
       filterByCategory = CategoryEnum.absent;
       filterByStreamingService = StreamingEnum.absent;

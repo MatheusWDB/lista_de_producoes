@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:todo_list_2/enums/streaming_enum.dart';
-import 'package:todo_list_2/models/todo.dart';
+import 'package:list_of_productions/enums/streaming_enum.dart';
+import 'package:list_of_productions/models/production.dart';
+import 'package:list_of_productions/widgets/update_production.dart';
 
-class TodoItem extends StatelessWidget {
-  final Todo todo;
-  final List<Todo> toDoList;
+class ProductionItem extends StatelessWidget {
+  final Production production;
+  final List<Production> productionList;
   final Function(bool?) onChanged;
-  final Function(Todo) onDelete;
+  final Function(Production) onDelete;
+  final VoidCallback readListOfProductions;
 
-  const TodoItem({
+  const ProductionItem({
     super.key,
-    required this.todo,
-    required this.toDoList,
+    required this.production,
+    required this.productionList,
     required this.onChanged,
     required this.onDelete,
+    required this.readListOfProductions,
   });
 
   @override
@@ -29,7 +32,8 @@ class TodoItem extends StatelessWidget {
           // A SlidableAction can have an icon and/or a label.
           SlidableAction(
             onPressed: (context) {
-              onDelete(toDoList.firstWhere((element) => element == todo));
+              onDelete(productionList
+                  .firstWhere((element) => element == production));
             },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
@@ -37,6 +41,31 @@ class TodoItem extends StatelessWidget {
             label: AppLocalizations.of(context)!.delete,
             borderRadius:
                 const BorderRadius.horizontal(left: Radius.circular(10)),
+          ),
+        ],
+      ),
+      endActionPane: ActionPane(
+        extentRatio: 0.25,
+        motion: const BehindMotion(),
+        // All actions are defined in the children parameter.
+        children: [
+          // A SlidableAction can have an icon and/or a label.
+          SlidableAction(
+            onPressed: (context) {
+              showDialog(
+                  context: context,
+                  builder: (context) => UpdateList(
+                        production: production,
+                        productionList: productionList,
+                        readListOfProductions: readListOfProductions,
+                      ));
+            },
+            backgroundColor: const Color(0xFFFF9800),
+            foregroundColor: Colors.white,
+            icon: Icons.mode_edit_outline_outlined,
+            label: AppLocalizations.of(context)!.edit,
+            borderRadius:
+                const BorderRadius.horizontal(right: Radius.circular(10)),
           ),
         ],
       ),
@@ -54,14 +83,14 @@ class TodoItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                todo.title,
+                production.title,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                todo.category.displayName,
+                production.category.displayNameTranslate(context),
                 style: const TextStyle(
                   fontSize: 16,
                   fontStyle: FontStyle.italic,
@@ -78,7 +107,7 @@ class TodoItem extends StatelessWidget {
             ),
             child: RichText(
               text: TextSpan(
-                children: todo.streaming.map((item) {
+                children: production.streaming.map((item) {
                   final streamingColors = switch (item.streamingService) {
                     StreamingEnum.apple => const Color(0xFF999999),
                     StreamingEnum.crunchy => const Color(0xFFff640a),
@@ -97,7 +126,8 @@ class TodoItem extends StatelessWidget {
                   return TextSpan(
                     children: [
                       TextSpan(
-                        text: '${item.streamingService.displayName}: ',
+                        text:
+                            '${item.streamingService.displayNameTranslate(context)}: ',
                         style: TextStyle(
                           color: Colors.black,
                           shadows: [
@@ -110,7 +140,7 @@ class TodoItem extends StatelessWidget {
                       ),
                       TextSpan(
                         text:
-                            '${item.accessMode!.displayName}${item != todo.streaming.last ? '\n' : ''}',
+                            '${item.accessMode!.displayNameTranslate(context)}${item != production.streaming.last ? '\n' : ''}',
                         style: const TextStyle(
                           color: Colors.black,
                         ),
@@ -121,11 +151,11 @@ class TodoItem extends StatelessWidget {
               ),
             ),
           ),
-          value: todo.watched,
+          value: production.watched,
           secondary: CircleAvatar(
             backgroundColor: Colors.blueAccent,
             child: Icon(
-              todo.watched ? Icons.tv_outlined : Icons.tv_off_outlined,
+              production.watched ? Icons.tv_outlined : Icons.tv_off_outlined,
               color: Colors.white,
             ),
           ),

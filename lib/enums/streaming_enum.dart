@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
+
 enum StreamingEnum {
   absent('Selecione o streaming'),
   apple('Apple TV+'),
@@ -12,7 +15,18 @@ enum StreamingEnum {
   sbt('SBT+'),
   telecine('Telecine'),
   youtube('YouTube'),
-  piracy('Outro');
+  other('Outro');
+
+  String displayNameTranslate(BuildContext context) {
+    switch (this) {
+      case StreamingEnum.absent:
+        return AppLocalizations.of(context)!.selectStreaming;
+      case StreamingEnum.other:
+        return AppLocalizations.of(context)!.other;
+      default:
+        return displayName;
+    }
+  }
 
   final String displayName;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:todo_list_2/l10n/l10n.dart';
-import 'package:todo_list_2/pages/home_page.dart';
+import 'package:list_of_productions/l10n/l10n.dart';
+import 'package:list_of_productions/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
