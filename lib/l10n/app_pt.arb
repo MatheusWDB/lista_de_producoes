@@ -9,7 +9,7 @@
   "noTitles": "Você não possui títulos cadastrados!",
   "close": "Fechar",
   "delete": "Deletar",  
-  "edit": "Edit",
+  "edit": "Editar",
   "clearAllConfirmationDialog": "Limpar Tudo?",
   "confirmDeleteAll": "Tem certeza que deseja apagar todos os títulos?",
   "cancel": "Cancelar",
@@ -56,5 +56,8 @@
   "creationDate": "Data de criação",
   "alphabeticalOrder": "Ordem alfabética",
   "selectStreaming": "Selecione o streaming",
-  "other": "Outro"
+  "other": "Outro",
+  "filterBy": "Filtrar por:",
+  "editTitle": "Editar Título...",
+  "save": "Salvar"
 }

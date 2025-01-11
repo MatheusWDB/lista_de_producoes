@@ -167,7 +167,6 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
               return;
             }
             addProduction();
-            Navigator.of(context).pop();
           },
           child: Text(
             AppLocalizations.of(context)!.add,
@@ -183,7 +182,8 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
   void addProduction() {
     List<Streaming> streaming = productionController['streaming'];
 
-    streaming.sort((a, b) => a.streamingService.displayNameTranslate(context)
+    streaming.sort((a, b) => a.streamingService
+        .displayNameTranslate(context)
         .compareTo(b.streamingService.displayNameTranslate(context)));
 
     Production newProduction = Production(
@@ -198,6 +198,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
     widget.readListOfProductions();
     resetProductionController();
     resetError();
+    Navigator.of(context).pop();
   }
 
   void resetProductionController() {
@@ -239,8 +240,8 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                               .where((streaming) =>
                                   streaming != StreamingEnum.absent)
                               .map((streaming) {
-                            final bool isSelected = productionController['streaming']
-                                .any((entry) =>
+                            final bool isSelected =
+                                productionController['streaming'].any((entry) =>
                                     entry.streamingService == streaming);
                             final int index = productionController['streaming']
                                 .indexWhere((entry) =>
@@ -256,13 +257,14 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                                   child: Column(
                                     children: [
                                       CheckboxListTile(
-                                        title: Text(streaming.displayNameTranslate(context)),
+                                        title: Text(streaming
+                                            .displayNameTranslate(context)),
                                         value: isSelected,
                                         onChanged: (selected) {
                                           setState(() {
                                             if (selected == true) {
-                                              productionController['streaming'].add(
-                                                  Streaming(
+                                              productionController['streaming']
+                                                  .add(Streaming(
                                                       streamingService:
                                                           streaming,
                                                       accessMode:
@@ -283,7 +285,9 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                                               AccessEnum.values.map((access) {
                                             return DropdownMenuEntry(
                                               value: access,
-                                              label: access.displayNameTranslate(context),
+                                              label:
+                                                  access.displayNameTranslate(
+                                                      context),
                                             );
                                           }).toList(),
                                           onSelected: (newValue) {
@@ -344,7 +348,8 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                     }
                     int errors = 0;
 
-                    for (Streaming element in productionController['streaming']) {
+                    for (Streaming element
+                        in productionController['streaming']) {
                       final int index =
                           productionController['streaming'].indexOf(element);
 

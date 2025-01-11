@@ -76,7 +76,7 @@ class ProductionItem extends StatelessWidget {
             color: Colors.blueAccent,
             width: 0.5,
           ),
-          borderRadius: BorderRadius.circular(8.0),
+          //borderRadius: BorderRadius.circular(8.0),
         ),
         child: CheckboxListTile(
           title: Column(

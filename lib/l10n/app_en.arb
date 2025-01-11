@@ -1,6 +1,6 @@
 {
   "homePageTitle": "My List",
-  "completedTitles": "{completed}/{total} titles completed. Keep watching!",
+  "completedTitles": "{completed}/{total} titles watched!",
   "clearAll": "Clear All",
   "newTitle": "New Title...",
   "titleRemoved": "The title \"{title}\" has been removed successfully!",
@@ -27,7 +27,7 @@
   "selectAccess": "Select Access",
   "buyRent": "Buy/Rent",
   "free": "Free",
-  "signature": "Subscription",
+  "signature": "Signature",
   "selectCategory": "Select Category",
   "anime": "Anime",
   "cartoon": "Cartoon",
@@ -56,5 +56,8 @@
   "creationDate": "Creation Date",
   "alphabeticalOrder": "Alphabetical Order",
   "selectStreaming": "Select Streaming",
-  "other": "Other"
+  "other": "Other",
+  "filterBy": "Filter by:",
+  "editTitle": "Edit Title...",
+  "save": "Save"
 }

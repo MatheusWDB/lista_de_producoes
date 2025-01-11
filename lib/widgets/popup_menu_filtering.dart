@@ -73,7 +73,7 @@ class PopupMenuFiltering extends StatelessWidget {
       child: TextButton.icon(
         onPressed: null,
         label: Text(
-          'Filtrar por: ${filter.displayNameTranslate(context)}',
+          '${AppLocalizations.of(context)!.filterBy} ${filter.displayNameTranslate(context)}',
           style: const TextStyle(
             color: Colors.black,
           ),

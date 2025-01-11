@@ -48,7 +48,7 @@ class _UpdateListState extends State<UpdateList> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Editar Título...'),
+      title: Text(AppLocalizations.of(context)!.editTitle),
       titleTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 28),
       actions: [
         TextButton(
@@ -88,11 +88,10 @@ class _UpdateListState extends State<UpdateList> {
               return;
             }
             saveProduction();
-            Navigator.of(context).pop();
           },
-          child: const Text(
-            'Salvar',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.save,
+            style: const TextStyle(
               color: Colors.blueAccent,
             ),
           ),
@@ -206,12 +205,14 @@ class _UpdateListState extends State<UpdateList> {
     widget.readListOfProductions();
     resetProductionController();
     resetError();
+    Navigator.of(context).pop();
   }
 
   void resetProductionController() {
-    productionController['title']!.clear();
-    productionController['category'] = CategoryEnum.absent;
-    productionController['streaming'].clear();
+    productionController['title'] =
+        TextEditingController(text: production.title);
+    productionController['category'] = production.category;
+    productionController['streaming'] = production.streaming;
   }
 
   void resetError() {
