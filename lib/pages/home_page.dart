@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    readData();
+    readData(null);
   }
 
   @override
@@ -295,11 +295,11 @@ class _HomePageState extends State<HomePage> {
           AppLocalizations.of(context)!.titleRemoved(production.title),
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
         action: SnackBarAction(
           label: AppLocalizations.of(context)!.undo,
           onPressed: () {
@@ -313,20 +313,20 @@ class _HomePageState extends State<HomePage> {
                     AppLocalizations.of(context)!.actionUndone,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  backgroundColor: Colors.white,
-                  duration: const Duration(seconds: 2),
+                  backgroundColor: Colors.blueAccent,
+                  duration: const Duration(seconds: 1),
                 ),
               );
             });
             storageServices.saveData(productionList);
           },
-          textColor: Colors.blueAccent,
+          textColor: Colors.white,
         ),
-        duration: const Duration(seconds: 5),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -379,7 +379,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void readData() {
+  void readData(BuildContext? context) {
     storageServices.readData().then((data) {
       setState(() {
         if (data != null) {
@@ -389,6 +389,9 @@ class _HomePageState extends State<HomePage> {
               decodedData.map((item) => Production.fromJson(item)).toList();
         }
       });
+      if (context != null) {
+        Navigator.of(context).pop();
+      }
     });
   }
 
@@ -409,12 +412,9 @@ class _HomePageState extends State<HomePage> {
 
     productionList.add(newProduction);
 
-    setState(() {
-      storageServices.saveData(productionList);
-      readData();
+    storageServices.saveData(productionList).then((onValue) {
+      readData(context);
     });
-
-    Navigator.of(context).pop();
   }
 
   void updateProduction(Map<String, dynamic> productionController,
@@ -435,18 +435,17 @@ class _HomePageState extends State<HomePage> {
     final int index = productionList.indexOf(production);
     productionList[index] = newProduction;
 
-    setState(() {
-      storageServices.saveData(productionList);
-      readData();
+    storageServices.saveData(productionList).then((onValue) {
+      readData(context);
     });
-
-    Navigator.of(context).pop();
   }
 
-  void deleteAllProductions() {
+  void deleteAllProductions(BuildContext context) {
     setState(() {
       productionList.clear();
-      storageServices.saveData(productionList);
+      storageServices.saveData(productionList).then((onValue) {
+        readData(context);
+      });
     });
   }
 
@@ -459,7 +458,7 @@ class _HomePageState extends State<HomePage> {
       filterByCategory = CategoryEnum.absent;
       filterByStreamingService = StreamingEnum.absent;
       filterByAccessMode = AccessEnum.absent;
-      readData();
+      readData(null);
     });
     return null;
   }

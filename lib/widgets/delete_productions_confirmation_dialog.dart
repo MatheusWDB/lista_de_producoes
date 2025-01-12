@@ -10,7 +10,7 @@ class DeleteProductionsConfirmationDialog extends StatelessWidget {
   });
 
   final BuildContext context;
-  final VoidCallback deleteAllProductions;
+  final Function(BuildContext context) deleteAllProductions;
   final Locale myLocale;
 
   @override
@@ -33,8 +33,7 @@ class DeleteProductionsConfirmationDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop();
-            deleteAllProductions();
+            deleteAllProductions(context);
           },
           style: TextButton.styleFrom(
             foregroundColor: Colors.red,
