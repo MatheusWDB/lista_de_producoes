@@ -9,14 +9,15 @@ import 'package:list_of_productions/services/storage_services.dart';
 
 class AddProductionDialog extends StatefulWidget {
   final List<Production> productionList;
-  final VoidCallback readListOfProductions;
   final Locale myLocale;
+  final Function(Map<String, dynamic>, BuildContext) addProduction;
 
-  const AddProductionDialog(
-      {super.key,
-      required this.productionList,
-      required this.readListOfProductions,
-      required this.myLocale});
+  const AddProductionDialog({
+    super.key,
+    required this.productionList,
+    required this.myLocale,
+    required this.addProduction,
+  });
 
   @override
   State<AddProductionDialog> createState() => _AddProductionDialogState();
@@ -165,10 +166,11 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                 error['streamingService'] =
                     AppLocalizations.of(context)!.required;
               });
-
               return;
             }
-            addProduction();
+            widget.addProduction(productionController, context);
+            resetProductionController();
+            resetError();
           },
           child: Text(
             AppLocalizations.of(context)!.add,
@@ -179,29 +181,6 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
         ),
       ],
     );
-  }
-
-  void addProduction() async {
-    List<Streaming> streaming = productionController['streaming'];
-
-    streaming.sort((a, b) => a.streamingService
-        .displayNameTranslate(context)
-        .compareTo(b.streamingService.displayNameTranslate(context)));
-
-    Production newProduction = Production(
-      title: productionController['title'].text,
-      date: DateTime.now().toLocal(),
-      category: productionController['category'],
-      streaming: streaming,
-    );
-
-    resetProductionController();
-    resetError();
-    widget.productionList.add(newProduction);
-    storageServices.saveData(widget.productionList).then((onValue) {
-      widget.readListOfProductions;
-    });
-    Navigator.of(context).pop();
   }
 
   void resetProductionController() {
@@ -300,7 +279,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                                               productionController['streaming']
                                                   [index] = Streaming(
                                                 streamingService: streaming,
-                                                accessMode: newValue,
+                                                accessMode: newValue!,
                                               );
                                               error['accessMode'][index] = null;
                                             });

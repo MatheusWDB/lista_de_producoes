@@ -12,12 +12,14 @@ class UpdateList extends StatefulWidget {
     super.key,
     required this.production,
     required this.productionList,
-    required this.readListOfProductions,
+    required this.updateProduction,
   });
 
   final Production production;
   final List<Production> productionList;
-  final VoidCallback readListOfProductions;
+  final Function(Map<String, dynamic>, Production, BuildContext)
+      updateProduction;
+
   @override
   State<UpdateList> createState() => _UpdateListState();
 }
@@ -87,7 +89,10 @@ class _UpdateListState extends State<UpdateList> {
               });
               return;
             }
-            saveProduction();
+            widget.updateProduction(productionController, production, context);
+
+            resetProductionController();
+            resetError();
           },
           child: Text(
             AppLocalizations.of(context)!.save,
@@ -185,31 +190,6 @@ class _UpdateListState extends State<UpdateList> {
     );
   }
 
-  void saveProduction() async {
-    List<Streaming> streaming = productionController['streaming'];
-
-    streaming.sort((a, b) => a.streamingService
-        .displayNameTranslate(context)
-        .compareTo(b.streamingService.displayNameTranslate(context)));
-
-    Production newProduction = Production(
-      title: productionController['title'].text,
-      date: production.date,
-      category: productionController['category'],
-      streaming: streaming,
-    );
-
-    final int index = widget.productionList.indexOf(production);
-    widget.productionList[index] = newProduction;
-
-    resetProductionController();
-    resetError();
-    Navigator.of(context).pop();
-    await storageServices.saveData(widget.productionList);
-
-    widget.readListOfProductions();
-  }
-
   void resetProductionController() {
     productionController['title'] =
         TextEditingController(text: production.title);
@@ -292,7 +272,10 @@ class _UpdateListState extends State<UpdateList> {
                                       if (isSelected)
                                         DropdownMenu<AccessEnum>(
                                           errorText: error['accessMode'][index],
-                                          initialSelection: AccessEnum.absent,
+                                          initialSelection:
+                                              productionController['streaming']
+                                                      [index]
+                                                  .accessMode,
                                           dropdownMenuEntries:
                                               AccessEnum.values.map((access) {
                                             return DropdownMenuEntry(
@@ -307,7 +290,7 @@ class _UpdateListState extends State<UpdateList> {
                                               productionController['streaming']
                                                   [index] = Streaming(
                                                 streamingService: streaming,
-                                                accessMode: newValue,
+                                                accessMode: newValue!,
                                               );
                                               error['accessMode'][index] = null;
                                             });
@@ -339,7 +322,7 @@ class _UpdateListState extends State<UpdateList> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    productionController['streaming'].clear();
+                    productionController['streaming'] = production.streaming;
                     resetError();
                   },
                   child: Text(

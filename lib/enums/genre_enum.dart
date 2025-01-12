@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 enum GenreEnum {
-  a('a');
+  absent;
 
-  String displayNameTranslate(BuildContext context) {
+  String? displayNameTranslate(BuildContext context) {
     switch (this) {
-      case GenreEnum.a:
-        return AppLocalizations.of(context)!.selectCategory;
+      case GenreEnum.absent:
+        return null;
     }
   }
 
-  final String displayName;
-
-  const GenreEnum(this.displayName);
-
   @override
-  String toString() => displayName;
+  String toString() => name;
 }

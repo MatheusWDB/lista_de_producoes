@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 enum AccessEnum {
-  absent('Selecione o acesso'),
-  buyRent('Compra/Aluguel'),
-  free('Grátis'),
-  signature('Assinatura');
+  absent,
+  buyRent,
+  free,
+  signature;
 
   String displayNameTranslate(BuildContext context) {
     switch (this) {
@@ -20,10 +20,6 @@ enum AccessEnum {
     }
   }
 
-  final String displayName;
-
-  const AccessEnum(this.displayName);
-
   @override
-  String toString() => displayName;
+  String toString() => name;
 }

@@ -24,8 +24,8 @@ class Production {
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'category': category.displayName,
-      'genre': genre.map((g) => g.displayName).toList(),
+      'category': category.name,
+      'genre': genre.map((g) => g.name).toList(),
       'streaming': streaming.map((s) => s.toJson()).toList(),
       'watched': watched,
       'date': date.toIso8601String(),
@@ -36,19 +36,22 @@ class Production {
   factory Production.fromJson(Map<String, dynamic> json) {
     return Production(
       title: json['title'],
-      category: CategoryEnum.values
-          .firstWhere((e) => e.displayName == json['category']),
-      genre: (json['genre'] as List?)
-              ?.map(
-                  (e) => GenreEnum.values.firstWhere((e) => e.displayName == e))
-              .toList() ??
-          [], // Corrigido: trata como lista de enum
-      streaming: (json['streaming'] as List)
-          .map((e) => Streaming.fromJson(e as Map<String, dynamic>))
+      category:
+          CategoryEnum.values.firstWhere((c) => c.name == json['category']),
+      genre: (json['genre'] as List)
+          .map((e) => GenreEnum.values.firstWhere((g) => g.name == e))
           .toList(),
-      watched: json['watched'] ?? false,
+      streaming: (json['streaming'] as List)
+          .map((s) => Streaming.fromJson(s as Map<String, dynamic>))
+          .toList(),
+      watched: json['watched'],
       date: DateTime.parse(json['date']),
-      isDeleted: json['isDeleted'] ?? false,
+      isDeleted: json['isDeleted'],
     );
+  }
+
+  @override
+  String toString() {
+    return '{title: "$title", category: "$category", genre: $genre, streaming: $streaming, watched: $watched, date: $date, isDeleted: $isDeleted';
   }
 }

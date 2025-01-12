@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 enum FilterEnum {
-  all('Tudo'),
-  watched('Assistidos'),
-  unwatched('Não Assistidos'),
-  category('Categoria'),
-  streaming('Streaming'),
-  access('Modo de Acesso');
+  all,
+  watched,
+  unwatched,
+  category,
+  streaming,
+  access;
 
   String displayNameTranslate(BuildContext context) {
     switch (this) {
@@ -26,10 +26,6 @@ enum FilterEnum {
     }
   }
 
-  final String displayName;
-
-  const FilterEnum(this.displayName);
-
   @override
-  String toString() => displayName;
+  String toString() => name;
 }

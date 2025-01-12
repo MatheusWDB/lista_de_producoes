@@ -8,6 +8,7 @@ import 'package:list_of_productions/enums/filter_enum.dart';
 import 'package:list_of_productions/enums/sort_enum.dart';
 import 'package:list_of_productions/enums/streaming_enum.dart';
 import 'package:list_of_productions/models/production.dart';
+import 'package:list_of_productions/models/streaming.dart';
 import 'package:list_of_productions/services/filtering_services.dart';
 import 'package:list_of_productions/services/sorting_services.dart';
 import 'package:list_of_productions/services/storage_services.dart';
@@ -60,9 +61,7 @@ class _HomePageState extends State<HomePage> {
       myLocale = Localizations.localeOf(context);
     });
 
-    List<Production> renderedList = productionList;
-
-    renderedList = switch (sort) {
+    List<Production> renderedList = switch (sort) {
       SortEnum.creationDate => ascending == true
           ? sortingServices.dateOfCreationAscending(productionList)
           : sortingServices.dateOfCreationDescending(productionList),
@@ -184,22 +183,24 @@ class _HomePageState extends State<HomePage> {
                           Column(
                             spacing: 5.0,
                             children: [
-                              for (Production production in renderedList)
-                                ProductionItem(
-                                  production: production,
-                                  productionList: productionList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      productionList
-                                          .firstWhere((element) =>
-                                              element == production)
-                                          .watched = value!;
-                                      storageServices.saveData(productionList);
-                                    });
-                                  },
-                                  onDelete: onDelete,
-                                  readListOfProductions: readData,
-                                ),
+                              if (productionList.isNotEmpty)
+                                for (Production production in renderedList)
+                                  ProductionItem(
+                                    production: production,
+                                    productionList: productionList,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        productionList
+                                            .firstWhere((element) =>
+                                                element == production)
+                                            .watched = value!;
+                                        storageServices
+                                            .saveData(productionList);
+                                      });
+                                    },
+                                    onDelete: onDelete,
+                                    updateProduction: updateProduction,
+                                  ),
                             ],
                           )
                         ],
@@ -337,8 +338,8 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (context) => AddProductionDialog(
               productionList: productionList,
-              readListOfProductions: readData,
               myLocale: myLocale,
+              addProduction: addProduction,
             ));
   }
 
@@ -382,15 +383,64 @@ class _HomePageState extends State<HomePage> {
     storageServices.readData().then((data) {
       setState(() {
         if (data != null) {
-          // Decodifica a string JSON para uma lista de mapas
           List<dynamic> decodedData = json.decode(data);
 
-          // Mapeia cada mapa para um objeto Production
           productionList =
               decodedData.map((item) => Production.fromJson(item)).toList();
         }
       });
     });
+  }
+
+  void addProduction(
+      Map<String, dynamic> productionController, BuildContext context) {
+    List<Streaming> streaming = productionController['streaming'];
+
+    streaming.sort((a, b) => a.streamingService
+        .displayNameTranslate(this.context)
+        .compareTo(b.streamingService.displayNameTranslate(this.context)));
+
+    Production newProduction = Production(
+      title: productionController['title'].text,
+      date: DateTime.now().toLocal(),
+      category: productionController['category'],
+      streaming: streaming,
+    );
+
+    productionList.add(newProduction);
+
+    setState(() {
+      storageServices.saveData(productionList);
+      readData();
+    });
+
+    Navigator.of(context).pop();
+  }
+
+  void updateProduction(Map<String, dynamic> productionController,
+      Production production, BuildContext context) {
+    List<Streaming> streaming = productionController['streaming'];
+
+    streaming.sort((a, b) => a.streamingService
+        .displayNameTranslate(this.context)
+        .compareTo(b.streamingService.displayNameTranslate(this.context)));
+
+    Production newProduction = Production(
+      title: productionController['title'].text,
+      date: production.date,
+      category: productionController['category'],
+      streaming: streaming,
+    );
+
+    final int index = productionList.indexOf(production);
+    productionList[index] = newProduction;
+
+    setState(() {
+      storageServices.saveData(productionList);
+      readData();
+    });
+
+    Navigator.of(context).pop();
   }
 
   void deleteAllProductions() {

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 enum SortEnum {
-  creationDate('Data de criação'),
-  watched('Assistidos'),
-  alphabeticalOrder('Ordem alfabética'),
-  category('Categoria'),
-  streaming('Streaming'),
-  access('Modo de acesso');
+  creationDate,
+  watched,
+  alphabeticalOrder,
+  category,
+  streaming,
+  access;
 
   String displayNameTranslate(BuildContext context) {
     switch (this) {
@@ -26,10 +26,6 @@ enum SortEnum {
     }
   }
 
-  final String displayName;
-
-  const SortEnum(this.displayName);
-
   @override
-  String toString() => displayName;
+  String toString() => name;
 }

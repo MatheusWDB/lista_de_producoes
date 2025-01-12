@@ -3,7 +3,7 @@ import 'package:list_of_productions/enums/streaming_enum.dart';
 
 class Streaming {
   final StreamingEnum streamingService;
-  final AccessEnum? accessMode;
+  final AccessEnum accessMode;
 
   const Streaming({
     required this.streamingService,
@@ -13,23 +13,22 @@ class Streaming {
   // Converte o objeto Streaming para um mapa (JSON)
   Map<String, dynamic> toJson() {
     return {
-      'streamingService': streamingService.displayName,
-      'accessMode': accessMode!.displayName,
+      'streamingService': streamingService.name,
+      'accessMode': accessMode.name,
     };
   }
 
   // Converte um mapa (JSON) para um objeto Streaming
   factory Streaming.fromJson(Map<String, dynamic> json) {
     return Streaming(
-      streamingService: StreamingEnum.values
-          .firstWhere((e) => e.displayName == json['streamingService']),
-      accessMode: AccessEnum.values
-          .firstWhere((e) => e.displayName == json['accessMode']),
+      streamingService:
+          StreamingEnum.values.firstWhere((e) => e.name == json['streamingService']),
+      accessMode: AccessEnum.values.firstWhere((e) => e.name == json['accessMode']),
     );
   }
 
   @override
   String toString() {
-    return '${streamingService.displayName} - ${accessMode!.displayName}';
+    return '$streamingService - $accessMode';
   }
 }

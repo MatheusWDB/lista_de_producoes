@@ -10,7 +10,7 @@ class ProductionItem extends StatelessWidget {
   final List<Production> productionList;
   final Function(bool?) onChanged;
   final Function(Production) onDelete;
-  final VoidCallback readListOfProductions;
+  final Function(Map<String, dynamic>, Production, BuildContext) updateProduction;
 
   const ProductionItem({
     super.key,
@@ -18,7 +18,7 @@ class ProductionItem extends StatelessWidget {
     required this.productionList,
     required this.onChanged,
     required this.onDelete,
-    required this.readListOfProductions,
+    required this.updateProduction,
   });
 
   @override
@@ -62,7 +62,7 @@ class ProductionItem extends StatelessWidget {
                       builder: (context) => UpdateList(
                             production: production,
                             productionList: productionList,
-                            readListOfProductions: readListOfProductions,
+                            updateProduction: updateProduction,
                           ));
                 },
                 backgroundColor: const Color(0xFFFF9800),
@@ -145,7 +145,7 @@ class ProductionItem extends StatelessWidget {
                           ),
                           TextSpan(
                             text:
-                                '${item.accessMode!.displayNameTranslate(context)}${item != production.streaming.last ? '\n' : ''}',
+                                '${item.accessMode.displayNameTranslate(context)}${item != production.streaming.last ? '\n' : ''}',
                             style: const TextStyle(
                               color: Colors.black,
                             ),

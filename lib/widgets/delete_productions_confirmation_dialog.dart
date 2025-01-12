@@ -10,7 +10,7 @@ class DeleteProductionsConfirmationDialog extends StatelessWidget {
   });
 
   final BuildContext context;
-  final Function deleteAllProductions;
+  final VoidCallback deleteAllProductions;
   final Locale myLocale;
 
   @override

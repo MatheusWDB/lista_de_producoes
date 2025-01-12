@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 enum CategoryEnum {
-  absent('Selecione a categoria'),
-  anime('Anime'),
-  cartoon('Desenho Animado'),
-  documentary('Documentário'),
-  filmedTheater('Teatro Filmado'),
-  movie('Filme'),
-  machinima('Machinima'),
-  miniseries('Minissérie'),
-  motionComic('Quadrinho Animado'),
-  musicVideo('Videoclipe'),
-  realityShow('Reality Show'),
-  serial('Seriado'),
-  shortFilm('Curta-metragem'),
-  soapOpera('Novela'),
-  special('Especial'),
-  tvSeries('Série de TV'),
-  tvShow('Programa de TV'),
-  videoPodcast('Videocasts'),
-  webSeries('Websérie');
+  absent,
+  anime,
+  cartoon,
+  documentary,
+  filmedTheater,
+  movie,
+  machinima,
+  miniseries,
+  motionComic,
+  musicVideo,
+  realityShow,
+  serial,
+  shortFilm,
+  soapOpera,
+  special,
+  tvSeries,
+  tvShow,
+  videoPodcast,
+  webSeries;
 
   String displayNameTranslate(BuildContext context) {
     switch (this) {
@@ -65,10 +65,6 @@ enum CategoryEnum {
     }
   }
 
-  final String displayName;
-
-  const CategoryEnum(this.displayName);
-
   @override
-  String toString() => displayName;
+  String toString() => name;
 }

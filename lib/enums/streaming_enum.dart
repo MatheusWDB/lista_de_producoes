@@ -33,5 +33,5 @@ enum StreamingEnum {
   const StreamingEnum(this.displayName);
 
   @override
-  String toString() => displayName;
+  String toString() => name;
 }
