@@ -1,9 +1,20 @@
 {
   "homePageTitle": "My List",
   "completedTitles": "{completed}/{total} titles watched!",
+  "@completedTitles": {
+    "placeholders": {
+      "completed": {},
+      "total": {}
+    }
+  },
   "clearAll": "Clear All",
   "newTitle": "New Title...",
   "titleRemoved": "The title \"{title}\" has been removed successfully!",
+  "@titleRemoved": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "actionUndone": "Action undone!",
   "clearAllConfirmation": "Clear All?",
   "noTitles": "You do not have registered titles!",

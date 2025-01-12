@@ -224,6 +224,7 @@ class _UpdateListState extends State<UpdateList> {
 
   void showStreamingAccessDialog(BuildContext context) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(

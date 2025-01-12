@@ -53,6 +53,7 @@ class ProductionItem extends StatelessWidget {
           SlidableAction(
             onPressed: (context) {
               showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (context) => UpdateList(
                         production: production,

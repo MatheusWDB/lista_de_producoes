@@ -108,150 +108,152 @@ class _HomePageState extends State<HomePage> {
             fontSize: 25.0,
           ),
         ),
-        body: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 3),
-              height: 70.0,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 236, 241, 252),
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
-                boxShadow: [
-                  BoxShadow(blurRadius: 5),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      PopupMenuSorting(
-                          sort: sort,
-                          ascending: ascending,
-                          onSelected: (value) {
-                            setState(() {
-                              if (sort == value) {
-                                ascending = !ascending;
-                                return;
-                              }
-                              ascending == false ? ascending = true : null;
-                              sort = value as SortEnum;
-                            });
-                          }),
-                      PopupMenuFiltering(
-                        filter: filter,
-                        onSelected: (value) {
-                          if (value != FilterEnum.category &&
-                              value != FilterEnum.streaming &&
-                              value != FilterEnum.access) {
-                            setState(() {
-                              filter = value as FilterEnum;
-                            });
-                          }
-                        },
-                        filterByCategory: filterByCategory,
-                        filterByStreamingService: filterByStreamingService,
-                        filterByAccessMode: filterByAccessMode,
-                        onSelectedByEnum: onSelectedByEnum,
-                      )
-                    ],
-                  ),
-                  Text(AppLocalizations.of(context)!.completedTitles(
-                      productionList
-                          .where((production) => production.watched == true)
-                          .length,
-                      productionList.length)),
-                ],
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.tight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 220, 232, 255),
-                  ),
-                  child: RefreshIndicator(
-                    onRefresh: _refresh,
-                    child: ListView(
-                      shrinkWrap: true,
+        body: Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.height * 0.002),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 3),
+                height: 70.0,
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 236, 241, 252),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(8)),
+                  boxShadow: [
+                    BoxShadow(blurRadius: 5),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          spacing: 5.0,
-                          children: [
-                            for (Production production in renderedList)
-                              ProductionItem(
-                                production: production,
-                                productionList: productionList,
-                                onChanged: (value) {
-                                  setState(() {
-                                    productionList
-                                        .firstWhere(
-                                            (element) => element == production)
-                                        .watched = value!;
-                                    storageServices.saveData(productionList);
-                                  });
-                                },
-                                onDelete: onDelete,
-                                readListOfProductions: () {
-                                  setState(() {
-                                    readData();
-                                  });
-                                },
-                              ),
-                          ],
+                        PopupMenuSorting(
+                            sort: sort,
+                            ascending: ascending,
+                            onSelected: (value) {
+                              setState(() {
+                                if (sort == value) {
+                                  ascending = !ascending;
+                                  return;
+                                }
+                                ascending == false ? ascending = true : null;
+                                sort = value as SortEnum;
+                              });
+                            }),
+                        PopupMenuFiltering(
+                          filter: filter,
+                          onSelected: (value) {
+                            if (value != FilterEnum.category &&
+                                value != FilterEnum.streaming &&
+                                value != FilterEnum.access) {
+                              setState(() {
+                                filter = value as FilterEnum;
+                              });
+                            }
+                          },
+                          filterByCategory: filterByCategory,
+                          filterByStreamingService: filterByStreamingService,
+                          filterByAccessMode: filterByAccessMode,
+                          onSelectedByEnum: onSelectedByEnum,
                         )
                       ],
+                    ),
+                    Text(AppLocalizations.of(context)!.completedTitles(
+                        productionList
+                            .where((production) => production.watched == true)
+                            .length,
+                        productionList.length)),
+                  ],
+                ),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 220, 232, 255),
+                    ),
+                    child: RefreshIndicator(
+                      onRefresh: _refresh,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          Column(
+                            spacing: 5.0,
+                            children: [
+                              for (Production production in renderedList)
+                                ProductionItem(
+                                  production: production,
+                                  productionList: productionList,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      productionList
+                                          .firstWhere((element) =>
+                                              element == production)
+                                          .watched = value!;
+                                      storageServices.saveData(productionList);
+                                    });
+                                  },
+                                  onDelete: onDelete,
+                                  readListOfProductions: () => readData,
+                                ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 3),
-              height: 70.0,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 236, 241, 252),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                  boxShadow: [
-                    BoxShadow(blurRadius: 5),
-                  ]),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: showDeleteProductionsConfirmationDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      padding: const EdgeInsets.all(16),
-                      fixedSize: const Size(135, 50),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.clearAll,
-                      style: const TextStyle(
-                        color: Colors.white,
+              Container(
+                margin: const EdgeInsets.only(top: 3),
+                height: 70.0,
+                decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 236, 241, 252),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(8)),
+                    boxShadow: [
+                      BoxShadow(blurRadius: 5),
+                    ]),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: showDeleteProductionsConfirmationDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: const EdgeInsets.all(16),
+                        fixedSize: const Size(135, 50),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.clearAll,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: showAddProductionDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      padding: const EdgeInsets.all(16),
-                      fixedSize: const Size(135, 50),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.newTitle,
-                      style: const TextStyle(
-                        color: Colors.white,
+                    ElevatedButton(
+                      onPressed: showAddProductionDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.all(16),
+                        fixedSize: const Size(135, 50),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.newTitle,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -330,51 +332,47 @@ class _HomePageState extends State<HomePage> {
 
   void showAddProductionDialog() {
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) => AddProductionDialog(
               productionList: productionList,
-              readListOfProductions: () {
-                setState(() {
-                  readData();
-                });
-              },
+              readListOfProductions: () => readData,
               myLocale: myLocale,
             ));
   }
 
   void showDeleteProductionsConfirmationDialog() {
-    if (productionList.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(
-            AppLocalizations.of(context)!.clearAllConfirmation,
-          ),
-          content: Text(
-            AppLocalizations.of(context)!.noTitles,
-            textAlign: TextAlign.justify,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
-              child: Text(AppLocalizations.of(context)!.close),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
     showDialog(
+      barrierDismissible: false,
       context: context,
-      builder: (context) => DeleteProductionsConfirmationDialog(
-        context: context,
-        deleteAllProductions: deleteAllProductions,
-        myLocale: myLocale,
-      ),
+      builder: (context) {
+        if (productionList.isEmpty) {
+          return AlertDialog(
+            title: Text(
+              AppLocalizations.of(context)!.clearAllConfirmation,
+            ),
+            content: Text(
+              AppLocalizations.of(context)!.noTitles,
+              textAlign: TextAlign.justify,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
+                child: Text(AppLocalizations.of(context)!.close),
+              ),
+            ],
+          );
+        } else {
+          return DeleteProductionsConfirmationDialog(
+            context: context,
+            deleteAllProductions: deleteAllProductions,
+            myLocale: myLocale,
+          );
+        }
+      },
     );
   }
 

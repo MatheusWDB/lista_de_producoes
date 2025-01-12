@@ -179,7 +179,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
     );
   }
 
-  void addProduction() {
+  void addProduction() async {
     List<Streaming> streaming = productionController['streaming'];
 
     streaming.sort((a, b) => a.streamingService
@@ -194,7 +194,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
     );
 
     widget.productionList.add(newProduction);
-    StorageServices().saveData(widget.productionList);
+    await StorageServices().saveData(widget.productionList);
     widget.readListOfProductions();
     resetProductionController();
     resetError();
@@ -216,6 +216,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
 
   void _showStreamingAccessDialog(BuildContext context) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
