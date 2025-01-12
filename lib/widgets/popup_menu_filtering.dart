@@ -33,39 +33,40 @@ class PopupMenuFiltering extends StatelessWidget {
       offset: const Offset(0, 45),
       initialValue: filter,
       onSelected: onSelected,
-      constraints: const BoxConstraints(
-        maxWidth: double.infinity, // Largura mínima possível
-      ),
       itemBuilder: (context) {
         return FilterEnum.values.map((value) {
           if (value == FilterEnum.category) {
             return subMenu(
-                value, context, -168, 0, CategoryEnum.values, filterByCategory);
+                value,
+                context,
+                MediaQuery.of(context).size.width * (-0.41),
+                CategoryEnum.values,
+                filterByCategory);
           } else if (value == FilterEnum.streaming) {
-            return subMenu(value, context, -112, 0, StreamingEnum.values,
+            return subMenu(
+                value,
+                context,
+                MediaQuery.of(context).size.width * (-0.41),
+                StreamingEnum.values,
                 filterByStreamingService);
           } else if (value == FilterEnum.access) {
-            return subMenu(value, context, -168, -8, AccessEnum.values,
+            return subMenu(
+                value,
+                context,
+                MediaQuery.of(context).size.width * (-0.41),
+                AccessEnum.values,
                 filterByAccessMode);
           } else {
             return PopupMenuItem(
               value: value,
-              child: Container(
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                  ),
-                  child: Text(switch (value) {
-                    FilterEnum.all => AppLocalizations.of(context)!.all,
-                    FilterEnum.watched => AppLocalizations.of(context)!.watched,
-                    FilterEnum.unwatched =>
-                      AppLocalizations.of(context)!.unwatched,
-                    FilterEnum.category =>
-                      AppLocalizations.of(context)!.category,
-                    FilterEnum.streaming =>
-                      AppLocalizations.of(context)!.streaming,
-                    FilterEnum.access =>
-                      AppLocalizations.of(context)!.accessMode,
-                  })),
+              child: Text(switch (value) {
+                FilterEnum.all => AppLocalizations.of(context)!.all,
+                FilterEnum.watched => AppLocalizations.of(context)!.watched,
+                FilterEnum.unwatched => AppLocalizations.of(context)!.unwatched,
+                FilterEnum.category => AppLocalizations.of(context)!.category,
+                FilterEnum.streaming => AppLocalizations.of(context)!.streaming,
+                FilterEnum.access => AppLocalizations.of(context)!.accessMode,
+              }),
             );
           }
         }).toList();
@@ -84,7 +85,7 @@ class PopupMenuFiltering extends StatelessWidget {
   }
 
   PopupMenuItem subMenu(FilterEnum value, BuildContext context, double offsetX,
-      double offsetY, List<dynamic> enumValues, Enum initialValue) {
+      List<dynamic> enumValues, Enum initialValue) {
     return PopupMenuItem(
       padding: EdgeInsets.zero,
       value: value,
@@ -92,9 +93,10 @@ class PopupMenuFiltering extends StatelessWidget {
         shadowColor: Colors.blueAccent,
         elevation: 5,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.5,
+          maxHeight: MediaQuery.of(context).size.height * 0.35,
+          minWidth: MediaQuery.of(context).size.width * 0.408,
         ),
-        offset: Offset(offsetX, offsetY),
+        offset: Offset(offsetX, 0),
         requestFocus: true,
         initialValue: initialValue,
         itemBuilder: (context) {

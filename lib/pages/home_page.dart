@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                                     });
                                   },
                                   onDelete: onDelete,
-                                  readListOfProductions: () => readData,
+                                  readListOfProductions: readData,
                                 ),
                             ],
                           )
@@ -333,10 +333,11 @@ class _HomePageState extends State<HomePage> {
   void showAddProductionDialog() {
     showDialog(
         barrierDismissible: false,
+        barrierColor: const Color.fromARGB(113, 68, 137, 255),
         context: context,
         builder: (context) => AddProductionDialog(
               productionList: productionList,
-              readListOfProductions: () => readData,
+              readListOfProductions: readData,
               myLocale: myLocale,
             ));
   }
@@ -344,6 +345,7 @@ class _HomePageState extends State<HomePage> {
   void showDeleteProductionsConfirmationDialog() {
     showDialog(
       barrierDismissible: false,
+      barrierColor: const Color.fromARGB(113, 68, 137, 255),
       context: context,
       builder: (context) {
         if (productionList.isEmpty) {

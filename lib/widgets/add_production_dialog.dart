@@ -23,6 +23,8 @@ class AddProductionDialog extends StatefulWidget {
 }
 
 class _AddProductionDialogState extends State<AddProductionDialog> {
+  final StorageServices storageServices = StorageServices();
+
   final Map<String, dynamic> productionController = {
     'title': TextEditingController(),
     'category': CategoryEnum.absent,
@@ -193,11 +195,12 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
       streaming: streaming,
     );
 
-    widget.productionList.add(newProduction);
-    await StorageServices().saveData(widget.productionList);
-    widget.readListOfProductions();
     resetProductionController();
     resetError();
+    widget.productionList.add(newProduction);
+    storageServices.saveData(widget.productionList).then((onValue) {
+      widget.readListOfProductions;
+    });
     Navigator.of(context).pop();
   }
 
@@ -217,6 +220,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
   void _showStreamingAccessDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
+      barrierColor: const Color.fromARGB(113, 68, 137, 255),
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(

@@ -185,7 +185,7 @@ class _UpdateListState extends State<UpdateList> {
     );
   }
 
-  void saveProduction() {
+  void saveProduction() async {
     List<Streaming> streaming = productionController['streaming'];
 
     streaming.sort((a, b) => a.streamingService
@@ -201,11 +201,13 @@ class _UpdateListState extends State<UpdateList> {
 
     final int index = widget.productionList.indexOf(production);
     widget.productionList[index] = newProduction;
-    storageServices.saveData(widget.productionList);
-    widget.readListOfProductions();
+
     resetProductionController();
     resetError();
     Navigator.of(context).pop();
+    await storageServices.saveData(widget.productionList);
+
+    widget.readListOfProductions();
   }
 
   void resetProductionController() {
@@ -225,6 +227,7 @@ class _UpdateListState extends State<UpdateList> {
   void showStreamingAccessDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
+      barrierColor: const Color.fromARGB(113, 68, 137, 255),
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
