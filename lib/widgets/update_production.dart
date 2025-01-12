@@ -3,9 +3,8 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:list_of_productions/enums/access_enum.dart';
 import 'package:list_of_productions/enums/category_enum.dart';
 import 'package:list_of_productions/enums/streaming_enum.dart';
-import 'package:list_of_productions/models/streaming.dart';
 import 'package:list_of_productions/models/production.dart';
-import 'package:list_of_productions/services/storage_services.dart';
+import 'package:list_of_productions/models/streaming.dart';
 
 class UpdateList extends StatefulWidget {
   const UpdateList({
@@ -25,8 +24,9 @@ class UpdateList extends StatefulWidget {
 }
 
 class _UpdateListState extends State<UpdateList> {
-  final storageServices = StorageServices();
   late Production production;
+  late Function(Map<String, dynamic>, Production, BuildContext)
+      updateProduction;
 
   late final Map<String, dynamic> productionController = {
     'title': TextEditingController(text: production.title),
@@ -45,6 +45,7 @@ class _UpdateListState extends State<UpdateList> {
   void initState() {
     super.initState();
     production = widget.production;
+    updateProduction = widget.updateProduction;
   }
 
   @override
@@ -89,7 +90,7 @@ class _UpdateListState extends State<UpdateList> {
               });
               return;
             }
-            widget.updateProduction(productionController, production, context);
+            updateProduction(productionController, production, context);
 
             resetProductionController();
             resetError();

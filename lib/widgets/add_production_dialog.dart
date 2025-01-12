@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
 import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/models/streaming.dart';
+import 'package:list_of_productions/enums/streaming_enum.dart';
 import 'package:list_of_productions/models/production.dart';
-import 'package:list_of_productions/services/storage_services.dart';
+import 'package:list_of_productions/models/streaming.dart';
 
 class AddProductionDialog extends StatefulWidget {
   final List<Production> productionList;
@@ -24,7 +23,7 @@ class AddProductionDialog extends StatefulWidget {
 }
 
 class _AddProductionDialogState extends State<AddProductionDialog> {
-  final StorageServices storageServices = StorageServices();
+  late Function(Map<String, dynamic>, BuildContext) addProduction;
 
   final Map<String, dynamic> productionController = {
     'title': TextEditingController(),
@@ -38,6 +37,12 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
     'streamingService': null,
     'accessMode': [],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    addProduction = widget.addProduction;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +173,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
               });
               return;
             }
-            widget.addProduction(productionController, context);
+            addProduction(productionController, context);
             resetProductionController();
             resetError();
           },
