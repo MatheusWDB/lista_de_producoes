@@ -1,4 +1,4 @@
-package br.com.list_of_productions
+package br.com.hematsu.watchlist_plus
 
 import io.flutter.embedding.android.FlutterActivity
 

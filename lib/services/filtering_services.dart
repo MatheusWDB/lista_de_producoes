@@ -1,7 +1,7 @@
-import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
-import 'package:list_of_productions/models/production.dart';
+import 'package:watchlist_plus/enums/access_enum.dart';
+import 'package:watchlist_plus/enums/category_enum.dart';
+import 'package:watchlist_plus/enums/streaming_enum.dart';
+import 'package:watchlist_plus/models/production.dart';
 
 class FilteringServices {
   List<Production> filterByWatched(List<Production> productionList) {

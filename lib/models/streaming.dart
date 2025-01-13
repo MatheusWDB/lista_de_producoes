@@ -1,5 +1,5 @@
-import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
+import 'package:watchlist_plus/enums/access_enum.dart';
+import 'package:watchlist_plus/enums/streaming_enum.dart';
 
 class Streaming {
   final StreamingEnum streamingService;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:list_of_productions/enums/sort_enum.dart';
+import 'package:watchlist_plus/enums/sort_enum.dart';
 
 class PopupMenuSorting extends StatelessWidget {
   const PopupMenuSorting({

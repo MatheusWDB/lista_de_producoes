@@ -2,21 +2,21 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/enums/filter_enum.dart';
-import 'package:list_of_productions/enums/sort_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
-import 'package:list_of_productions/models/production.dart';
-import 'package:list_of_productions/models/streaming.dart';
-import 'package:list_of_productions/services/filtering_services.dart';
-import 'package:list_of_productions/services/sorting_services.dart';
-import 'package:list_of_productions/services/storage_services.dart';
-import 'package:list_of_productions/widgets/popup_menu_filtering.dart';
-import 'package:list_of_productions/widgets/popup_menu_sorting.dart';
-import 'package:list_of_productions/widgets/add_production_dialog.dart';
-import 'package:list_of_productions/widgets/delete_productions_confirmation_dialog.dart';
-import 'package:list_of_productions/widgets/production_item.dart';
+import 'package:watchlist_plus/enums/access_enum.dart';
+import 'package:watchlist_plus/enums/category_enum.dart';
+import 'package:watchlist_plus/enums/filter_enum.dart';
+import 'package:watchlist_plus/enums/sort_enum.dart';
+import 'package:watchlist_plus/enums/streaming_enum.dart';
+import 'package:watchlist_plus/models/production.dart';
+import 'package:watchlist_plus/models/streaming.dart';
+import 'package:watchlist_plus/services/filtering_services.dart';
+import 'package:watchlist_plus/services/sorting_services.dart';
+import 'package:watchlist_plus/services/storage_services.dart';
+import 'package:watchlist_plus/widgets/add_production_dialog.dart';
+import 'package:watchlist_plus/widgets/delete_productions_confirmation_dialog.dart';
+import 'package:watchlist_plus/widgets/popup_menu_filtering.dart';
+import 'package:watchlist_plus/widgets/popup_menu_sorting.dart';
+import 'package:watchlist_plus/widgets/production_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -337,7 +337,6 @@ class _HomePageState extends State<HomePage> {
         barrierColor: const Color.fromARGB(113, 68, 137, 255),
         context: context,
         builder: (context) => AddProductionDialog(
-              productionList: productionList,
               myLocale: myLocale,
               addProduction: addProduction,
             ));

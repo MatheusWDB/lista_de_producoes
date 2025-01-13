@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
-import 'package:list_of_productions/models/production.dart';
-import 'package:list_of_productions/widgets/update_production.dart';
+import 'package:watchlist_plus/enums/streaming_enum.dart';
+import 'package:watchlist_plus/models/production.dart';
+import 'package:watchlist_plus/widgets/update_production.dart';
 
 class ProductionItem extends StatelessWidget {
   final Production production;
@@ -61,7 +61,6 @@ class ProductionItem extends StatelessWidget {
                       context: context,
                       builder: (context) => UpdateList(
                             production: production,
-                            productionList: productionList,
                             updateProduction: updateProduction,
                           ));
                 },

@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
-import 'package:list_of_productions/models/production.dart';
-import 'package:list_of_productions/models/streaming.dart';
+import 'package:watchlist_plus/enums/access_enum.dart';
+import 'package:watchlist_plus/enums/category_enum.dart';
+import 'package:watchlist_plus/models/streaming.dart';
+import 'package:watchlist_plus/widgets/streaming_access_dialog.dart';
 
 class AddProductionDialog extends StatefulWidget {
-  final List<Production> productionList;
   final Locale myLocale;
   final Function(Map<String, dynamic>, BuildContext) addProduction;
 
   const AddProductionDialog({
     super.key,
-    required this.productionList,
     required this.myLocale,
     required this.addProduction,
   });
@@ -25,10 +22,12 @@ class AddProductionDialog extends StatefulWidget {
 class _AddProductionDialogState extends State<AddProductionDialog> {
   late Function(Map<String, dynamic>, BuildContext) addProduction;
 
-  final Map<String, dynamic> productionController = {
+  final List<Streaming> streaming = [];
+
+  late final Map<String, dynamic> productionController = {
     'title': TextEditingController(),
     'category': CategoryEnum.absent,
-    'streaming': <Streaming>[]
+    'streaming': streaming
   };
 
   final Map<String, dynamic> error = {
@@ -113,7 +112,14 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                     setState(() {
                       error['streamingService'] = null;
                     });
-                    _showStreamingAccessDialog(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) => StreamingAccessDialog(
+                        error: error,
+                        productionController: productionController['streaming'],
+                        back: back,
+                      ),
+                    );
                   },
                   child: Text(
                     AppLocalizations.of(context)!.availableOn,
@@ -201,171 +207,9 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
     error['accessMode'].clear();
   }
 
-  void _showStreamingAccessDialog(BuildContext context) {
-    showDialog(
-      barrierDismissible: false,
-      barrierColor: const Color.fromARGB(113, 68, 137, 255),
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title:
-                  Text(AppLocalizations.of(context)!.selectStreamingAndAccess),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: error['streamingService'] != null
-                            ? Border.all(color: Colors.red, width: 1.5)
-                            : null,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: StreamingEnum.values
-                              .where((streaming) =>
-                                  streaming != StreamingEnum.absent)
-                              .map((streaming) {
-                            final bool isSelected =
-                                productionController['streaming'].any((entry) =>
-                                    entry.streamingService == streaming);
-                            final int index = productionController['streaming']
-                                .indexWhere((entry) =>
-                                    entry.streamingService == streaming);
-                            error['accessMode'].add(null);
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(width: 1.0),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      CheckboxListTile(
-                                        title: Text(streaming
-                                            .displayNameTranslate(context)),
-                                        value: isSelected,
-                                        onChanged: (selected) {
-                                          setState(() {
-                                            if (selected == true) {
-                                              productionController['streaming']
-                                                  .add(Streaming(
-                                                      streamingService:
-                                                          streaming,
-                                                      accessMode:
-                                                          AccessEnum.absent));
-                                              error['streamingService'] = null;
-                                            } else {
-                                              productionController['streaming']
-                                                  .removeAt(index);
-                                            }
-                                          });
-                                        },
-                                      ),
-                                      if (isSelected)
-                                        DropdownMenu<AccessEnum>(
-                                          errorText: error['accessMode'][index],
-                                          initialSelection: AccessEnum.absent,
-                                          dropdownMenuEntries:
-                                              AccessEnum.values.map((access) {
-                                            return DropdownMenuEntry(
-                                              value: access,
-                                              label:
-                                                  access.displayNameTranslate(
-                                                      context),
-                                            );
-                                          }).toList(),
-                                          onSelected: (newValue) {
-                                            setState(() {
-                                              productionController['streaming']
-                                                  [index] = Streaming(
-                                                streamingService: streaming,
-                                                accessMode: newValue!,
-                                              );
-                                              error['accessMode'][index] = null;
-                                            });
-                                          },
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (error['streamingService'] != null) ...[
-                    Text(
-                      error['streamingService'],
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    productionController['streaming'].clear();
-                    resetError();
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.back,
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (productionController['streaming'].isEmpty) {
-                      setState(() {
-                        error['streamingService'] =
-                            AppLocalizations.of(context)!.chooseAtLeastOne;
-                      });
-                      return;
-                    }
-                    int errors = 0;
-
-                    for (Streaming element
-                        in productionController['streaming']) {
-                      final int index =
-                          productionController['streaming'].indexOf(element);
-
-                      if (element.accessMode == AccessEnum.absent) {
-                        setState(() {
-                          error['accessMode'][index] =
-                              AppLocalizations.of(context)!.required;
-                        });
-
-                        errors++;
-                      }
-                    }
-                    if (errors != 0) return;
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.confirm,
-                    style: const TextStyle(
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+  void back(BuildContext context) {
+    Navigator.pop(context);
+    //productionController['streaming'] = [...streaming];
+    resetError();
   }
 }

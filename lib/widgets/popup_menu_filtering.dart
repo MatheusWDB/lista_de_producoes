@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:list_of_productions/enums/access_enum.dart';
-import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/enums/filter_enum.dart';
-import 'package:list_of_productions/enums/streaming_enum.dart';
+import 'package:watchlist_plus/enums/access_enum.dart';
+import 'package:watchlist_plus/enums/category_enum.dart';
+import 'package:watchlist_plus/enums/filter_enum.dart';
+import 'package:watchlist_plus/enums/streaming_enum.dart';
 
 class PopupMenuFiltering extends StatelessWidget {
   final FilterEnum filter;
@@ -37,25 +37,13 @@ class PopupMenuFiltering extends StatelessWidget {
         return FilterEnum.values.map((value) {
           if (value == FilterEnum.category) {
             return subMenu(
-                value,
-                context,
-                MediaQuery.of(context).size.width * (-0.41),
-                CategoryEnum.values,
-                filterByCategory);
+                value, context, CategoryEnum.values, filterByCategory);
           } else if (value == FilterEnum.streaming) {
             return subMenu(
-                value,
-                context,
-                MediaQuery.of(context).size.width * (-0.41),
-                StreamingEnum.values,
-                filterByStreamingService);
+                value, context, StreamingEnum.values, filterByStreamingService);
           } else if (value == FilterEnum.access) {
             return subMenu(
-                value,
-                context,
-                MediaQuery.of(context).size.width * (-0.41),
-                AccessEnum.values,
-                filterByAccessMode);
+                value, context, AccessEnum.values, filterByAccessMode);
           } else {
             return PopupMenuItem(
               value: value,
@@ -84,7 +72,7 @@ class PopupMenuFiltering extends StatelessWidget {
     );
   }
 
-  PopupMenuItem subMenu(FilterEnum value, BuildContext context, double offsetX,
+  PopupMenuItem subMenu(FilterEnum value, BuildContext context,
       List<dynamic> enumValues, Enum initialValue) {
     return PopupMenuItem(
       padding: EdgeInsets.zero,
@@ -96,7 +84,7 @@ class PopupMenuFiltering extends StatelessWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.35,
           minWidth: MediaQuery.of(context).size.width * 0.408,
         ),
-        offset: Offset(offsetX, 0),
+        offset: Offset(MediaQuery.of(context).size.width * (-0.41), 0),
         requestFocus: true,
         initialValue: initialValue,
         itemBuilder: (context) {

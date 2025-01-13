@@ -1,6 +1,6 @@
-import 'package:list_of_productions/enums/category_enum.dart';
-import 'package:list_of_productions/enums/genre_enum.dart';
-import 'package:list_of_productions/models/streaming.dart';
+import 'package:watchlist_plus/enums/category_enum.dart';
+import 'package:watchlist_plus/enums/genre_enum.dart';
+import 'package:watchlist_plus/models/streaming.dart';
 
 class Production {
   String title;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:list_of_productions/models/production.dart';
+import 'package:watchlist_plus/models/production.dart';
 
 class StorageServices {
   Future<File?> getFile() async {

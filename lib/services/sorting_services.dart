@@ -1,4 +1,4 @@
-import 'package:list_of_productions/models/production.dart';
+import 'package:watchlist_plus/models/production.dart';
 
 class SortingServices {
   List<Production> dateOfCreationAscending(List<Production> productionList) {
