@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "br.com" "\0"
-            VALUE "FileDescription", "todo_list_2" "\0"
+            VALUE "FileDescription", "watchlist_plus" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "todo_list_2" "\0"
+            VALUE "InternalName", "watchlist_plus" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 br.com. All rights reserved." "\0"
-            VALUE "OriginalFilename", "todo_list_2.exe" "\0"
-            VALUE "ProductName", "todo_list_2" "\0"
+            VALUE "OriginalFilename", "watchlist_plus.exe" "\0"
+            VALUE "ProductName", "watchlist_plus" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

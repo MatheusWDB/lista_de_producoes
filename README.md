@@ -1,4 +1,4 @@
-# todo_list_2
+# watchlist_plus
 
 A new Flutter project.
 
