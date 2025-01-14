@@ -10,11 +10,13 @@ class StreamingAccessDialog extends StatefulWidget {
     required this.error,
     required this.productionController,
     required this.back,
+    required this.confirm,
   });
 
   final Map<String, dynamic> error;
   final List<Streaming> productionController;
   final Function(BuildContext) back;
+  final Function(BuildContext) confirm;
 
   @override
   State<StreamingAccessDialog> createState() => _StreamingAccessDialogState();
@@ -28,12 +30,14 @@ class _StreamingAccessDialogState extends State<StreamingAccessDialog> {
     error = widget.error;
     productionController = widget.productionController;
     back = widget.back;
+    confirm = widget.confirm;
   }
 
   late List<Streaming> productionControllerOriginal;
   late Map<String, dynamic> error;
   late List<Streaming> productionController;
   late Function(BuildContext) back;
+  late Function(BuildContext) confirm;
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +142,6 @@ class _StreamingAccessDialogState extends State<StreamingAccessDialog> {
       actions: [
         TextButton(
           onPressed: () {
-            // VERIFICAR QUAIS ELEMENTOS DE productionController SÃO IGUAIS AOS ELEMENTOS DE productionControllerOriginal
-            // productionController = [...productionControllerOriginal];
             back(context);
           },
           child: Text(
@@ -173,7 +175,8 @@ class _StreamingAccessDialogState extends State<StreamingAccessDialog> {
               }
             }
             if (errors != 0) return;
-            Navigator.pop(context);
+
+            confirm(context);
           },
           child: Text(
             AppLocalizations.of(context)!.confirm,

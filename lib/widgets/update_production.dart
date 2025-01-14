@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:watchlist_plus/enums/access_enum.dart';
 import 'package:watchlist_plus/enums/category_enum.dart';
 import 'package:watchlist_plus/models/production.dart';
+import 'package:watchlist_plus/models/streaming.dart';
 import 'package:watchlist_plus/widgets/streaming_access_dialog.dart';
 
 class UpdateList extends StatefulWidget {
@@ -22,6 +23,7 @@ class UpdateList extends StatefulWidget {
 
 class _UpdateListState extends State<UpdateList> {
   late Production production;
+  late List<Streaming> streamingOriginal;
   late Function(Map<String, dynamic>, Production, BuildContext)
       updateProduction;
 
@@ -42,6 +44,7 @@ class _UpdateListState extends State<UpdateList> {
   void initState() {
     super.initState();
     production = widget.production;
+    streamingOriginal = [...widget.production.streaming];
     updateProduction = widget.updateProduction;
   }
 
@@ -120,6 +123,7 @@ class _UpdateListState extends State<UpdateList> {
                         error: error,
                         productionController: productionController['streaming'],
                         back: back,
+                        confirm: confirm,
                       ),
                     );
                   },
@@ -211,7 +215,12 @@ class _UpdateListState extends State<UpdateList> {
 
   void back(BuildContext context) {
     Navigator.pop(context);
-    //productionController['streaming'] = [...production.streaming];
+    productionController['streaming'] = [...streamingOriginal];
     resetError();
+  }
+
+  void confirm(BuildContext context) {
+    Navigator.pop(context);
+    streamingOriginal = [...productionController['streaming']];
   }
 }

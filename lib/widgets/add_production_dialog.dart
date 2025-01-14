@@ -22,12 +22,12 @@ class AddProductionDialog extends StatefulWidget {
 class _AddProductionDialogState extends State<AddProductionDialog> {
   late Function(Map<String, dynamic>, BuildContext) addProduction;
 
-  final List<Streaming> streaming = [];
+  List<Streaming> streaming = [];
 
   late final Map<String, dynamic> productionController = {
     'title': TextEditingController(),
     'category': CategoryEnum.absent,
-    'streaming': streaming
+    'streaming': <Streaming>[]
   };
 
   final Map<String, dynamic> error = {
@@ -118,6 +118,7 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
                         error: error,
                         productionController: productionController['streaming'],
                         back: back,
+                        confirm: confirm,
                       ),
                     );
                   },
@@ -209,7 +210,12 @@ class _AddProductionDialogState extends State<AddProductionDialog> {
 
   void back(BuildContext context) {
     Navigator.pop(context);
-    //productionController['streaming'] = [...streaming];
+    productionController['streaming'] = [...streaming];
     resetError();
+  }
+
+  void confirm(BuildContext context) {
+    Navigator.pop(context);
+    streaming = [...productionController['streaming']];
   }
 }
